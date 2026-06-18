@@ -4,6 +4,9 @@ AIとレスバするゲームアプリのプロジェクトです。
 
 フロントエンド（Next.js）とバックエンド（Node.js + Express）のモノリポ構成になっています。
 
+## デザイン
+https://docs.google.com/document/d/1iwaiANFI9ax-W4Q2P_rSi5gSAEOs5NEZ5Vg_V0UdCD0/edit?tab=t.jcckvee3uqf#heading=h.avx7a2ps2usm
+
 ## 🛠️ 前提条件（必要な環境）
 
 開発を始める前に、以下のツールがパソコンにインストールされている必要があります。
