@@ -10,7 +10,9 @@ type Message = {
 
 export default function Page() {
   const [messages, setMessages] = useState<Message[]>([]);
+
   const [input, setinput] = useState("");
+
   const [round, setRound] = useState(1);
 
   const [typingText, setTypingText] = useState("");
@@ -22,6 +24,8 @@ export default function Page() {
   const [screen, setScreen] = useState<"team" | "battle">("team");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const [teamMessages, setTeamMessages] = useState<Message[]>([]);
 
   // ラウンド数処理
   const nextRound = () => {
@@ -85,50 +89,55 @@ export default function Page() {
     typeText(data.reply);
   };
 
-const handleAction = () => {
-  if (screen === "team") {
-    handleTeamAction();
-    return;
-  }
+  const sendTeamMessage = () => {
+    if (!input.trim()) return;
 
-  handleBattleAction();
-};
+    const text = input;
+    setinput("");
 
-const handleTeamAction = () => {
-  setShowNextRound(true);
+    setTeamMessages((prev) => [
+      ...prev,
+      { role: "you", content: text },
+    ]);
+  };
 
-  setTimeout(() => {
-    setShowNextRound(false);
+  const handleTeamAction = () => {
+    setShowNextRound(true);
 
-    // チーム → バトルへ
-    setScreen("battle");
-    setPhase("answer");
-    nextRound();
-  }, 1200);
-};
+    setTimeout(() => {
+      setShowNextRound(false);
 
-const handleBattleAction = () => {
-  if (phase === "answer") {
-    sendMessage();
-    return;
-  }
+      // チーム → バトルへ
+      setScreen("battle");
+      setPhase("answer");
+      nextRound();
+    }, 1200);
+  };
 
-  setShowNextRound(true);
+  const handleBattleAction = () => {
+    if (phase === "answer") {
+      sendMessage();
+      return;
+    }
 
-  setTimeout(() => {
-    setShowNextRound(false);
+    setShowNextRound(true);
 
-    // バトル → チームへ戻すとかも可
-    setScreen("team");
-    setPhase("answer");
-    nextRound();
-  }, 1200);
-};
+    setTimeout(() => {
+      setShowNextRound(false);
+      setScreen("team");
+      setPhase("answer");
+      nextRound();
+    }, 1200);
+  };
 
-    // 味方画面とバトル画面チェンジ
-    const changeScreen = () => {
-      setScreen((prev) => (prev === "battle" ? "team" : "battle"));
-    };
+  const handleAction = () => {
+    if (screen === "team") {
+      handleTeamAction();
+    } else {
+      handleBattleAction();
+    }
+  };
+
 
 
   return (
@@ -141,16 +150,16 @@ const handleBattleAction = () => {
       </div>
 
       {/* Next Round演出 */}
-{showNextRound && (
-  <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
-    <div className="text-5xl font-bold animate-pulse">
-      {screen === "team" ? "TEAM PHASE" : "BATTLE PHASE"}
-    </div>
-    <div className="text-xl text-white/60 mt-4">
-      第 {round + 1} ラウンド
-    </div>
-  </div>
-)}
+      {showNextRound && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
+          <div className="text-5xl font-bold animate-pulse">
+            {screen === "team" ? "TEAM PHASE" : "BATTLE PHASE"}
+          </div>
+          <div className="text-xl text-white/60 mt-4">
+            第 {round + 1} ラウンド
+          </div>
+        </div>
+      )}
 
       {screen === "team" ? (
         <div className="relative z-10 w-[900px] h-[850px] flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8">
@@ -197,17 +206,22 @@ const handleBattleAction = () => {
 
             <div className="rounded-xl bg-black/20 p-4 overflow-y-auto h-[300px] flex flex-col">
 
-              <div className="flex mb-3 justify-start">
-                <div className="max-w-[70%] px-4 py-2 rounded-2xl text-sm bg-white/10 text-white">
-                  あなた：まずは反対寄りで攻めるべきだと思う
+              {teamMessages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`flex mb-3 ${m.role === "you" ? "justify-start" : "justify-end"
+                    }`}
+                >
+                  <div
+                    className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm break-words shadow-sm ${m.role === "you"
+                      ? "bg-white/10 text-white rounded-bl-sm backdrop-blur"
+                      : "bg-blue-500 text-white rounded-br-sm"
+                      }`}
+                  >
+                    {m.content}
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex mb-3 justify-end">
-                <div className="max-w-[70%] px-4 py-2 rounded-2xl text-sm bg-white/10 text-white">
-                  AI：賛成側の論点を潰した方が勝ちやすい
-                </div>
-              </div>
+              ))}
 
             </div>
           </div>
@@ -217,10 +231,18 @@ const handleBattleAction = () => {
             <textarea
               className="w-full h-28 rounded-xl bg-black/40 border border-white/10 p-4 text-sm text-white outline-none"
               placeholder="チームの方針をまとめる..."
+              value={input}
+              onChange={(e) => setinput(e.target.value)}
             />
 
+            <button
+              className="w-full rounded-xl bg-white py-3 font-semibold text-black"
+              onClick={sendTeamMessage}
+            >
+              送信
+            </button>
             <button className="w-full rounded-xl bg-white py-3 font-semibold text-black"
-            onClick={handleAction}>
+              onClick={handleAction}>
               方針を確定
             </button>
           </div>
@@ -263,7 +285,7 @@ const handleBattleAction = () => {
           </div>
 
           {/* バトルログは今のままでOK */}
-          
+
           {/* 会話ログ */}
           <div>
             <p className="text-sm text-gray-300 mb-2">会話ログ</p>
@@ -273,16 +295,14 @@ const handleBattleAction = () => {
               {messages.map((m, i) => (
                 <div
                   key={i}
-                  className={`flex mb-3 ${
-                    m.role === "あなた" ? "justify-start" : "justify-end"
-                  }`}
+                  className={`flex mb-3 ${m.role === "あなた" ? "justify-start" : "justify-end"
+                    }`}
                 >
                   <div
-                    className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm break-words shadow-sm ${
-                      m.role === "あなた"
-                        ? "bg-white/10 text-white rounded-bl-sm backdrop-blur"
-                        : "bg-green-500 text-white rounded-br-sm"
-                    }`}
+                    className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm break-words shadow-sm ${m.role === "あなた"
+                      ? "bg-white/10 text-white rounded-bl-sm backdrop-blur"
+                      : "bg-green-500 text-white rounded-br-sm"
+                      }`}
                   >
                     {m.content}
                   </div>
