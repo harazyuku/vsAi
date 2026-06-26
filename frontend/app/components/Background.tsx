@@ -66,7 +66,6 @@ function SceneContents() {
 export default function Background() {
   return (
     <div className="h-full w-full">
-      {/* カメラの角度 */}
       <Canvas camera={{ position: [0, 1, 5] }}>
         <SceneContents />
       </Canvas>
