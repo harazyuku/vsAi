@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 function Model({ onLoaded }: { onLoaded: () => void }) {
   const { scene } = useGLTF("/models/japanese_classroom.glb");
-  
+
   // シーンが用意できたらロード完了を通知
   useEffect(() => {
     if (scene) {
@@ -41,6 +41,7 @@ function SceneContents() {
     // 回転方法
     modelRef.current.rotation.y += 0.003;
   });
+  
 
   return (
     <>
@@ -66,10 +67,11 @@ function SceneContents() {
 export default function Background() {
   return (
     <div className="h-full w-full">
-      {/* カメラの角度 */}
       <Canvas camera={{ position: [0, 1, 5] }}>
         <SceneContents />
       </Canvas>
     </div>
   );
 }
+
+
