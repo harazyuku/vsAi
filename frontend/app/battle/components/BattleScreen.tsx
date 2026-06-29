@@ -3,6 +3,7 @@
 import { RefObject, KeyboardEvent, useEffect, useRef } from "react";
 import { Message } from "../page";
 import { MdBalance } from "react-icons/md";
+import { AICharacter } from "../../config/aiConfig";
 
 interface BattleScreenProps {
   round: number;
@@ -16,6 +17,9 @@ interface BattleScreenProps {
   typingText: string;
   isThinking: boolean;
   chatEndRef: RefObject<HTMLDivElement | null>;
+  topic: string;
+  userStance: string;
+  aiCharacter: AICharacter;
 }
 
 export default function BattleScreen({
@@ -29,6 +33,9 @@ export default function BattleScreen({
   isTyping,
   typingText,
   isThinking,
+  topic,
+  userStance,
+  aiCharacter,
 }: BattleScreenProps) {
   const teamHistoryScrollRef = useRef<HTMLDivElement>(null);
 
@@ -87,9 +94,8 @@ export default function BattleScreen({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-400">バトルフェーズ</p>
-            <h1 className="text-3xl font-bold">
-              学校で暴力は許されるべきか？
-            </h1>
+            <h1 className="text-2xl font-bold">{topic}</h1>
+            <p className="text-sm text-blue-400 font-bold mt-1">あなたの立場: {userStance}派</p>
           </div>
 
           <div className="text-center">
@@ -123,7 +129,10 @@ export default function BattleScreen({
           <div className="relative rounded-3xl border border-red-500/30 bg-red-500/10 p-8 overflow-hidden">
             <div className="mb-8 text-right">
               <p className="text-red-300 text-sm">相手の意見</p>
-              <h2 className="text-2xl font-bold">🤖 メスクソガキ</h2>
+              <h2 className="text-2xl font-bold flex items-center justify-end gap-3">
+                {aiCharacter.name}
+                <img src={aiCharacter.icon} alt={aiCharacter.name} className="w-12 h-12 rounded-full object-cover" />
+              </h2>
             </div>
             <div className="h-[350px] overflow-y-auto">
               {aiLatestMessage ? (

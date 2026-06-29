@@ -5,6 +5,7 @@ import Background from "./components/Background";
 import TeamScreen from "./components/TeamScreen";
 import BattleScreen from "./components/BattleScreen";
 import JudgeScreen from "./components/JudgeScreen";
+import { aiCharacters, AICharacter, topics } from "../config/aiConfig";
 
 export type Message = {
   role: string;
@@ -24,9 +25,35 @@ export default function Page() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [teamMessages, setTeamMessages] = useState<Message[]>([]);
   
+  // ゲーム設定ステート
+  const [aiCharacter, setAiCharacter] = useState<AICharacter | null>(null);
+  const [currentTopic, setCurrentTopic] = useState<{ topic: string; instructionTemplate: string; stance: string } | null>(null);
+  const [userStance, setUserStance] = useState<string | null>(null);
+
   // ジャッジ用ステート
   const [isJudging, setIsJudging] = useState(false);
   const [judgeResult, setJudgeResult] = useState<any>(null);
+
+  // ゲームの初期設定
+  useEffect(() => {
+    const charIds = Object.keys(aiCharacters);
+    const randomCharId = charIds[Math.floor(Math.random() * charIds.length)];
+    const character = aiCharacters[randomCharId];
+    setAiCharacter(character);
+
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    const aiStance = randomTopic.stances[Math.floor(Math.random() * randomTopic.stances.length)];
+    
+    // ユーザーはAIと逆の立場にする
+    const userStance = aiStance === randomTopic.stances[0] ? randomTopic.stances[1] : randomTopic.stances[0];
+    
+    setCurrentTopic({
+      topic: randomTopic.topic,
+      instructionTemplate: randomTopic.instructionTemplate.replace("{stance}", aiStance),
+      stance: aiStance,
+    });
+    setUserStance(userStance);
+  }, []);
 
   // ラウンド数処理
   const nextRound = () => {
@@ -67,7 +94,7 @@ export default function Page() {
 
   // 意見の処理
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !currentTopic) return;
 
     const text = input;
     setinput("");
@@ -82,10 +109,16 @@ export default function Page() {
 
     try {
       // AI側の意見
+      const prompt = currentTopic.instructionTemplate.replace("{topic}", currentTopic.topic);
+      
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ 
+          message: text,
+          prompt: prompt, // プロンプトを渡すようにする
+          persona: aiCharacter?.persona
+        }),
       });
 
       const data = await response.json();
@@ -144,7 +177,7 @@ export default function Page() {
         const response = await fetch("/api/judge", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages }),
+          body: JSON.stringify({ messages, topic: currentTopic?.topic }),
         });
         const data = await response.json();
         setJudgeResult(data);
@@ -160,6 +193,7 @@ export default function Page() {
 
     setTimeout(() => {
       setShowNextRound(false);
+      setMessages([]); // バトル画面のメッセージ履歴をクリア
       setScreen("team");
       setPhase("answer");
       nextRound();
@@ -180,7 +214,22 @@ export default function Page() {
     setTeamMessages([]);
     setScreen("team");
     setJudgeResult(null);
+    // 初期設定を再ランダム化
+    // ... (初期化ロジック)
   };
+
+  if (!aiCharacter || !currentTopic) return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black">
+      <div className="text-center space-y-4">
+        <div className="text-4xl font-black tracking-widest animate-pulse text-white">
+          NOW LOADING...
+        </div>
+        <div className="w-16 h-1 bg-white/20 mx-auto rounded-full overflow-hidden">
+          <div className="h-full bg-white animate-loading-bar"></div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative">
@@ -211,6 +260,8 @@ export default function Page() {
           onChangeInput={setinput}
           onSendTeamMessage={sendTeamMessage}
           onConfirmTeamAction={handleAction}
+          topic={currentTopic.topic}
+          userStance={userStance!}
         />
       ) : screen === "battle" ? (
         <BattleScreen
@@ -225,6 +276,9 @@ export default function Page() {
           typingText={typingText}
           isThinking={isThinking}
           chatEndRef={chatEndRef}
+          topic={currentTopic.topic}
+          userStance={userStance!}
+          aiCharacter={aiCharacter!}
         />
       ) : (
         <JudgeScreen 

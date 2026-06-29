@@ -5,24 +5,25 @@ import { GoogleGenAI } from '@google/genai';
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function POST(request: Request) {
-  console.log('GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
   try {
-    // フロントエンド（画面）から送られてきた文字を受け取る
-    const { message } = await request.json();
+    // フロントエンド（画面）から送られてきたデータを受け取る
+    const { message, prompt, persona } = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY is not set');
     }
 
-    // Geminiに文字を投げて、返事を待つ (モデルは最新の gemini-2.5-flash)
+    // Geminiに投げるプロンプトを作成
+    const fullPrompt = `${persona}\n\n${prompt}\n\nユーザーの意見: ${message}`;
+
+    // Geminiに文字を投げて、返事を待つ
     const response = await ai.models.generateContent({
       model: 'gemini-3.1-flash-lite',
-      contents: `あなたは天才メスガキです。「学校で暴力は許されるべきか？」というお題に対し、あなたは賛成派です。以下のユーザーの意見に対して、100文字以内で論破してください。\n\nユーザーの意見: ${message}`,
+      contents: fullPrompt,
     });
 
     // Geminiから返ってきたテキストを取り出す
     const aiResponse = response.text;
-    console.log('AI Response:', aiResponse);
 
     // 成功したら、フロントエンドにAIの返事を返す
     return NextResponse.json({ reply: aiResponse });

@@ -11,6 +11,8 @@ interface TeamScreenProps {
   onChangeInput: (value: string) => void;
   onSendTeamMessage: () => void;
   onConfirmTeamAction: () => void;
+  topic: string;
+  userStance: string;
 }
 
 export default function TeamScreen({
@@ -21,6 +23,8 @@ export default function TeamScreen({
   onChangeInput,
   onSendTeamMessage,
   onConfirmTeamAction,
+  topic,
+  userStance,
 }: TeamScreenProps) {
   const historyScrollRef = useRef<HTMLDivElement>(null);
   const teamScrollRef = useRef<HTMLDivElement>(null);
@@ -77,9 +81,8 @@ export default function TeamScreen({
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-sm text-gray-400">チームディスカッション</h1>
-            <p className="text-3xl font-bold">
-              チーム人類
-            </p>
+            <p className="text-2xl font-bold">{topic}</p>
+            <p className="text-sm text-blue-400 font-bold mt-1">あなたの立場: {userStance}派</p>
           </div>
 
           <div className="text-center">
