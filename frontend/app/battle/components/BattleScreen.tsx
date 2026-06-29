@@ -69,7 +69,7 @@ export default function BattleScreen({
               <div
                 key={i}
                 className={`p-3 rounded-xl text-sm ${
-                  m.role === "you" ? "bg-blue-900/30" : "bg-blue-600/30"
+                  m.role === "you" ? "bg-black/40" : "bg-black/60"
                 }`}
               >
                 <span className={`${m.role === "you" ? "text-blue-400" : "text-blue-200"} font-bold block mb-1`}>
