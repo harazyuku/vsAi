@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export interface JudgeResult {
   winner: "あなた" | "AI";
   score: {
@@ -142,12 +144,13 @@ export default function JudgeScreen({
 
       {/* 操作ボタン */}
       <div className="pt-4">
-        <button
+        <Link
           onClick={onReset}
-          className="w-full py-4 bg-gradient-to-r from-white to-gray-200 text-black font-bold rounded-2xl text-lg hover:from-gray-100 hover:to-gray-300 transition duration-200 shadow-md transform active:scale-[0.98]"
+          href="/"
+          className="flex justify-center items-center w-full py-4 bg-gradient-to-r from-white to-gray-200 text-black font-bold rounded-2xl text-lg hover:from-gray-100 hover:to-gray-300 transition duration-200 shadow-md transform active:scale-[0.98]"
         >
-          新しいディベートを始める
-        </button>
+          Homeに戻る
+        </Link>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent } from "react";
+import { KeyboardEvent, useEffect, useRef } from "react";
 import { Message } from "../page";
 
 interface TeamScreenProps {
@@ -22,6 +22,21 @@ export default function TeamScreen({
   onSendTeamMessage,
   onConfirmTeamAction,
 }: TeamScreenProps) {
+  const historyScrollRef = useRef<HTMLDivElement>(null);
+  const teamScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (historyScrollRef.current) {
+      historyScrollRef.current.scrollTop = historyScrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (teamScrollRef.current) {
+      teamScrollRef.current.scrollTop = teamScrollRef.current.scrollHeight;
+    }
+  }, [teamMessages]);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       if (input.trim()) {
@@ -35,7 +50,7 @@ export default function TeamScreen({
       {/* 左サイドバー：これまでのバトル履歴 */}
       <div className="w-[300px] border-r border-white/10 pr-8">
         <h3 className="text-sm font-bold text-gray-400 mb-4">バトル履歴</h3>
-        <div className="space-y-3 h-[700px] overflow-y-auto">
+        <div ref={historyScrollRef} className="space-y-3 h-[700px] overflow-y-auto">
           {messages.length === 0 ? (
             <p className="text-white-500 text-sm">相手との履歴がここに表示されます...</p>
           ) : (
@@ -63,7 +78,7 @@ export default function TeamScreen({
           <div>
             <h1 className="text-sm text-gray-400">チームディスカッション</h1>
             <p className="text-3xl font-bold">
-              意見をまとめて戦略を決めるフェーズ
+              チーム人類
             </p>
           </div>
 
@@ -74,7 +89,10 @@ export default function TeamScreen({
         </div>
 
         {/* 仲間とのチャット履歴 */}
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-6 flex-1 mb-8 overflow-y-auto space-y-4">
+        <div
+          ref={teamScrollRef}
+          className="bg-black/40 border border-white/10 rounded-2xl p-6 h-[400px] mb-8 overflow-y-auto space-y-4"
+        >
           {teamMessages.length === 0 ? (
             <p className="text-bga-500 text-center mt-10">チームの会話がここに表示されます...</p>
           ) : (
