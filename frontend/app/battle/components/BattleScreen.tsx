@@ -1,7 +1,8 @@
 "use client";
 
-import { RefObject } from "react";
+import { RefObject, KeyboardEvent } from "react";
 import { Message } from "../page";
+import { MdBalance } from "react-icons/md";
 
 interface BattleScreenProps {
   round: number;
@@ -41,6 +42,14 @@ export default function BattleScreen({
     : messages.filter((m) => m.role === "AI").at(-1)?.content ||
       "まだ発言していません";
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      if (!(isTyping || isThinking || (phase === "answer" && !input.trim()))) {
+        onSendMessage();
+      }
+    }
+  };
+
   return (
     <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex flex-col gap-8">
       {/* ヘッダー */}
@@ -58,26 +67,11 @@ export default function BattleScreen({
         </div>
       </div>
 
-      {/* VS */}
+      {/* 中心アイコン */}
       <div className="relative flex-1 grid grid-cols-2 gap-8">
-        {/* VS文字 */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-          <svg
-            className="w-32 h-32 text-white/20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 3v18" />
-            <path d="M4 12h16" />
-            <path d="M12 3l7 4-7 4-7-4 7-4z" />
-            <circle cx="12" cy="3" r="1" />
-            <circle cx="4" cy="12" r="2" />
-            <circle cx="20" cy="12" r="2" />
-          </svg>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
+    <MdBalance size={150} />
         </div>
 
         {/* 自分 */}
@@ -100,9 +94,9 @@ export default function BattleScreen({
         </div>
 
         {/* AI */}
-        <div className="relative rounded-3xl border border-green-500/30 bg-green-500/10 p-8 overflow-hidden">
+        <div className="relative rounded-3xl border border-red-500/30 bg-red-500/10 p-8 overflow-hidden">
           <div className="mb-8 text-right">
-            <p className="text-green-300 text-sm">
+            <p className="text-red-300 text-sm">
               相手の意見
             </p>
 
@@ -126,10 +120,11 @@ export default function BattleScreen({
       {/* 入力欄 */}
       <div className="space-y-4">
         <textarea
-          className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-lg text-white outline-none resize-none"
+          className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-sm text-white outline-none resize-none"
           placeholder="相手の主張に反論しよう..."
           value={input}
           onChange={(e) => onChangeInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           disabled={phase === "reply" || isTyping || isThinking}
         />
 

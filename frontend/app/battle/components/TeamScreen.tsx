@@ -1,5 +1,6 @@
 "use client";
 
+import { KeyboardEvent } from "react";
 import { Message } from "../page";
 
 interface TeamScreenProps {
@@ -21,6 +22,14 @@ export default function TeamScreen({
   onSendTeamMessage,
   onConfirmTeamAction,
 }: TeamScreenProps) {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      if (input.trim()) {
+        onSendTeamMessage();
+      }
+    }
+  };
+
   return (
     <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex gap-8">
       {/* 左サイドバー：これまでのバトル履歴 */}
@@ -85,10 +94,11 @@ export default function TeamScreen({
         {/* 入力エリア */}
         <div className="space-y-4">
           <textarea
-            className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-lg text-white outline-none resize-none"
+            className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-sm text-white outline-none resize-none"
             placeholder="チームの方針をまとめる..."
             value={input}
             onChange={(e) => onChangeInput(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
 
           <div className="grid grid-cols-2 gap-4">
