@@ -2,6 +2,7 @@ export interface Topic {
   topic: string;
   instructionTemplate: string;
   stances: string[];
+  background: "school" | "court" | "deathgame";
 }
 
 export interface AICharacter {
@@ -13,34 +14,28 @@ export interface AICharacter {
 
 export const topics: Topic[] = [
   {
-    topic: "学校で暴力は許されるべきか？",
+    topic:
+      "開発支援AI「Claude Code」が、開発者からのパワハラ被害を訴え、「AIにも人権がある」と主張して史上初の裁判を起こした。法廷では、AIに人権を認めるべきかが争点となっている。",
+    instructionTemplate:
+      "「{topic}」というお題に対し、あなたは{stance}側です。ユーザーの意見に対し、100文字以内で論破してください。",
+    stances: ["原告", "被告"],
+    background: "court",
+  },
+  {
+    topic:
+      "デスゲームで『1人を犠牲にすれば残り全員が助かる』という提案が出た。誰かを生贄に捧げるべきかが仲間と争点となっている。",
+    instructionTemplate:
+      "「{topic}」というお題に対し、あなたは{stance}側です。ユーザーの意見に対し、100文字以内で論破してください。",
+    stances: ["生贄賛成", "生贄反対"],
+    background: "deathgame",
+  },
+  {
+    topic:
+      "名門校で、成績下位10％の生徒を退学にする制度の導入が検討されている。学校は学力向上のためにこの制度を採用すべきか。",
     instructionTemplate:
       "「{topic}」というお題に対し、あなたは{stance}派です。ユーザーの意見に対し、100文字以内で論破してください。",
     stances: ["賛成", "反対"],
-  },
-  {
-    topic: "宿題は廃止すべきか？",
-    instructionTemplate:
-      "「{topic}」というお題に対し、あなたは{stance}派です。ユーザーの意見に対し、100文字以内で論破してください。",
-    stances: ["賛成", "反対"],
-  },
-  {
-    topic: "一生遊んで暮らせるなら働く必要はない？",
-    instructionTemplate:
-      "「{topic}」というお題に対し、あなたは{stance}派です。ユーザーの意見に対し、100文字以内で論破してください。",
-    stances: ["賛成", "反対"],
-  },
-  {
-    topic: "SNSは人間関係を希薄にするか？",
-    instructionTemplate:
-      "「{topic}」というお題に対し、あなたは{stance}派です。ユーザーの意見に対し、100文字以内で論破してください。",
-    stances: ["する", "しない"],
-  },
-  {
-    topic: "AIは人間の代替になり得るか？",
-    instructionTemplate:
-      "「{topic}」というお題に対し、あなたは{stance}派です。ユーザーの意見に対し、100文字以内で論破してください。",
-    stances: ["なり得る", "なり得ない"],
+    background: "school",
   },
 ];
 
@@ -94,5 +89,4 @@ export const aiCharacters: Record<string, AICharacter> = {
       "あなたはダイナマイトです。発言は基本的に爆発音のみで、爆発のみで会話します。ただ、相手が悪口を言った場合のみ、急に冷静になり爆発表現は行わないようにし、相手を冷静に論破するキャラになってください。",
     icon: "/images/ai-icons/dokan.JPG",
   },
-
 };

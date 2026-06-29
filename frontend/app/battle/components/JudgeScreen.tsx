@@ -80,7 +80,7 @@ export default function JudgeScreen({
             ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.2)]" 
             : "bg-red-600/20 text-red-400 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
         }`}>
-          {result.winner === "あなた" ? "🏆 あなたの勝利 🏆" : "😈 AI (メスガキ) の勝利 😈"}
+          {result.winner === "あなた" ? "🏆 あなたの勝利 🏆" : "相手側の勝利"}
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export default function JudgeScreen({
         {/* AIのスコア */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-sm font-semibold">
-            <span className="text-red-400 flex items-center gap-1">😈 AI（メスガキ）</span>
+            <span className="text-red-400 flex items-center gap-1">😈 相手</span>
             <span className="text-2xl font-bold">{result.score.ai}点</span>
           </div>
           <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
@@ -135,7 +135,7 @@ export default function JudgeScreen({
         </div>
 
         <div className="bg-red-950/20 border border-red-500/20 p-5 rounded-2xl">
-          <h4 className="text-sm font-bold text-red-400 mb-2">😈 AI（メスガキ）の評価</h4>
+          <h4 className="text-sm font-bold text-red-400 mb-2">AI（相手側）の評価</h4>
           <p className="text-xs text-gray-300 leading-relaxed">
             {result.feedbackAi}
           </p>

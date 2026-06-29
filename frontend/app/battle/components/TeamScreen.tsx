@@ -1,7 +1,7 @@
 "use client";
 
 import { KeyboardEvent, useEffect, useRef } from "react";
-import { Message } from "../page";
+import { Message } from "../../../hooks/useGameLogic";
 
 interface TeamScreenProps {
   round: number;

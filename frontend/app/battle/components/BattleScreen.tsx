@@ -1,8 +1,8 @@
 "use client";
 
-import { RefObject, KeyboardEvent, useEffect, useRef } from "react";
-import { Message } from "../page";
-import { MdBalance } from "react-icons/md";
+import { RefObject, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { Message } from "../../../hooks/useGameLogic";
+import { MdBalance, MdArrowUpward, MdArrowDownward } from "react-icons/md";
 import { AICharacter } from "../../config/aiConfig";
 
 interface BattleScreenProps {
@@ -38,6 +38,15 @@ export default function BattleScreen({
   aiCharacter,
 }: BattleScreenProps) {
   const teamHistoryScrollRef = useRef<HTMLDivElement>(null);
+  
+  // ラウンドごとの表示用ステートを個別に管理
+  const [displayRoundUser, setDisplayRoundUser] = useState(round);
+  const [displayRoundAi, setDisplayRoundAi] = useState(round);
+
+  useEffect(() => {
+    setDisplayRoundUser(round);
+    setDisplayRoundAi(round);
+  }, [round]);
 
   useEffect(() => {
     if (teamHistoryScrollRef.current) {
@@ -45,20 +54,33 @@ export default function BattleScreen({
     }
   }, [teamMessages]);
 
-  const myLatestMessage = messages
-    .filter((m) => m.role === "あなた")
-    .at(-1)?.content;
+  const changeDisplayRoundUser = (delta: number) => {
+    setDisplayRoundUser((prev) => Math.max(1, Math.min(round, prev + delta)));
+  };
 
-  const aiLatestMessage = isThinking
-    ? "考え中..."
-    : isTyping
-    ? typingText
-    : messages.filter((m) => m.role === "AI").at(-1)?.content;
+  const changeDisplayRoundAi = (delta: number) => {
+    setDisplayRoundAi((prev) => Math.max(1, Math.min(round, prev + delta)));
+  };
+
+  const getMessageByRoleAndRound = (role: string, targetRound: number) => {
+    return messages
+      .filter((m) => m.role === role && m.round === targetRound)
+      .at(-1)?.content;
+  };
+
+  const myMessage = getMessageByRoleAndRound("あなた", displayRoundUser);
+  const aiMessage = getMessageByRoleAndRound("AI", displayRoundAi);
+
+  const handleSendMessage = () => {
+    setDisplayRoundUser(round);
+    setDisplayRoundAi(round);
+    onSendMessage();
+  };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       if (!(isTyping || isThinking || (phase === "answer" && !input.trim()))) {
-        onSendMessage();
+        handleSendMessage();
       }
     }
   };
@@ -95,7 +117,25 @@ export default function BattleScreen({
           <div>
             <p className="text-sm text-gray-400">バトルフェーズ</p>
             <h1 className="text-2xl font-bold">{topic}</h1>
-            <p className="text-sm text-blue-400 font-bold mt-1">あなたの立場: {userStance}派</p>
+            
+            {/* スタンスとラウンド切り替えボタン */}
+            <div className="flex items-center gap-6 mt-2">
+              <p className="text-xl text-blue-400 font-bold">あなたの立場: {userStance}派</p>
+              
+              <div className="flex items-center gap-4 bg-black/40 px-3 py-1 rounded-full border border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">あなた:{displayRoundUser}R</span>
+                  <button onClick={() => changeDisplayRoundUser(1)} disabled={displayRoundUser >= round} className="text-white/50 hover:text-white disabled:opacity-20"><MdArrowUpward size={25}/></button>
+                  <button onClick={() => changeDisplayRoundUser(-1)} disabled={displayRoundUser <= 1} className="text-white/50 hover:text-white disabled:opacity-20"><MdArrowDownward size={25}/></button>
+                </div>
+                <div className="h-4 w-px bg-white/10"></div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">AI:{displayRoundAi}R</span>
+                  <button onClick={() => changeDisplayRoundAi(1)} disabled={displayRoundAi >= round} className="text-white/50 hover:text-white disabled:opacity-20"><MdArrowUpward size={25}/></button>
+                  <button onClick={() => changeDisplayRoundAi(-1)} disabled={displayRoundAi <= 1} className="text-white/50 hover:text-white disabled:opacity-20"><MdArrowDownward size={25}/></button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="text-center">
@@ -117,10 +157,10 @@ export default function BattleScreen({
               <h2 className="text-2xl font-bold">👤 あなた</h2>
             </div>
             <div className="h-[350px] overflow-y-auto">
-              {myLatestMessage ? (
-                <p className="text-2xl leading-relaxed font-bold break-words">{myLatestMessage}</p>
+              {myMessage ? (
+                <p className="text-2xl leading-relaxed font-bold break-words">{myMessage}</p>
               ) : (
-                <p className="text-sm text-white/50">まだ発言していません</p>
+                <p className="text-sm text-white/50">このラウンドでは発言していません</p>
               )}
             </div>
           </div>
@@ -135,13 +175,13 @@ export default function BattleScreen({
               </h2>
             </div>
             <div className="h-[350px] overflow-y-auto">
-              {aiLatestMessage ? (
+              {aiMessage ? (
                 <p className="text-2xl leading-relaxed font-bold text-left break-words">
-                  {aiLatestMessage}
-                  {(isTyping || isThinking) && <span className="animate-pulse">|</span>}
+                  {aiMessage}
+                  {isTyping && displayRoundAi === round && <span className="animate-pulse">|</span>}
                 </p>
               ) : (
-                <p className="text-sm text-white/50 text-left">まだ発言していません</p>
+                <p className="text-sm text-white/50 text-left">このラウンドでは発言していません</p>
               )}
             </div>
           </div>
@@ -158,7 +198,7 @@ export default function BattleScreen({
             disabled={phase === "reply" || isTyping || isThinking}
           />
           <button
-            onClick={onSendMessage}
+            onClick={handleSendMessage}
             disabled={isTyping || isThinking || (phase === "answer" && !input.trim())}
             className="w-full rounded-2xl bg-white py-5 font-bold text-black hover:bg-gray-200 transition disabled:opacity-50"
           >
