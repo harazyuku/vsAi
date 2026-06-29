@@ -1,6 +1,6 @@
 "use client";
 
-interface JudgeResult {
+export interface JudgeResult {
   winner: "あなた" | "AI";
   score: {
     user: number;

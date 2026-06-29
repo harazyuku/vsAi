@@ -6,115 +6,145 @@ import { Message } from "../page";
 interface BattleScreenProps {
   round: number;
   messages: Message[];
+  teamMessages: Message[];
   input: string;
   onChangeInput: (value: string) => void;
   onSendMessage: () => void;
   phase: "answer" | "reply";
   isTyping: boolean;
   typingText: string;
+  isThinking: boolean;
   chatEndRef: RefObject<HTMLDivElement | null>;
 }
 
 export default function BattleScreen({
   round,
   messages,
+  teamMessages,
   input,
   onChangeInput,
   onSendMessage,
   phase,
   isTyping,
   typingText,
-  chatEndRef,
+  isThinking,
 }: BattleScreenProps) {
+  const myLatestMessage =
+    messages
+      .filter((m) => m.role === "あなた")
+      .at(-1)?.content || "まだ発言していません";
+
+  const aiLatestMessage = isThinking
+    ? "考え中..."
+    : isTyping
+    ? typingText
+    : messages.filter((m) => m.role === "AI").at(-1)?.content ||
+      "まだ発言していません";
+
   return (
-    <div className="relative z-10 w-[900px] h-[850px] flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8">
-      {/* バトル画面 */}
+    <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex flex-col gap-8">
+      {/* ヘッダー */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-sm text-gray-400">お題</h1>
-          <p className="text-xl font-semibold">学校で暴力は許されるべきか？</p>
+          <p className="text-sm text-gray-400">バトルフェーズ</p>
+          <h1 className="text-3xl font-bold">
+            学校で暴力は許されるべきか？
+          </h1>
         </div>
 
-        <div className="text-right text-sm text-gray-400">
-          <p>ラウンド</p>
-          <p className="text-white text-lg font-bold">{round}</p>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between gap-10">
-        <div className="flex flex-col items-center gap-2">
-          <div className="h-20 w-20 rounded-full bg-white/10 flex items-center justify-center">
-            <span className="text-xs text-gray-400">あなた</span>
-          </div>
-          <p className="text-sm text-gray-300">代表者</p>
-        </div>
-
-        <div className="text-gray-500 text-sm">VS</div>
-
-        <div className="flex flex-col items-center gap-2">
-          <div className="h-20 w-20 rounded-full bg-white/10 flex items-center justify-center">
-            <span className="text-xs text-gray-400">AI</span>
-          </div>
-          <p className="text-sm text-gray-300">メスクソガキ</p>
+        <div className="text-center">
+          <p className="text-gray-400 text-sm">ROUND</p>
+          <p className="text-5xl font-black">{round}</p>
         </div>
       </div>
 
-      {/* 会話ログ */}
-      <div>
-        <p className="text-sm text-gray-300 mb-2">会話ログ</p>
+      {/* VS */}
+      <div className="relative flex-1 grid grid-cols-2 gap-8">
+        {/* VS文字 */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+          <svg
+            className="w-32 h-32 text-white/20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 3v18" />
+            <path d="M4 12h16" />
+            <path d="M12 3l7 4-7 4-7-4 7-4z" />
+            <circle cx="12" cy="3" r="1" />
+            <circle cx="4" cy="12" r="2" />
+            <circle cx="20" cy="12" r="2" />
+          </svg>
+        </div>
 
-        <div className="rounded-xl bg-black/20 p-4 overflow-y-auto h-[300px] flex flex-col">
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`flex mb-3 ${
-                m.role === "あなた" ? "justify-start" : "justify-end"
-              }`}
-            >
-              <div
-                className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm break-words shadow-sm ${
-                  m.role === "あなた"
-                    ? "bg-white/10 text-white rounded-bl-sm backdrop-blur"
-                    : "bg-green-500 text-white rounded-br-sm"
-                }`}
-              >
-                {m.content}
-              </div>
-            </div>
-          ))}
+        {/* 自分 */}
+        <div className="relative rounded-3xl border border-blue-500/30 bg-blue-500/10 p-8 overflow-hidden">
+          <div className="mb-8">
+            <p className="text-blue-300 text-sm">
+              あなたの意見
+            </p>
 
-          {isTyping && (
-            <div className="flex justify-end mb-3">
-              <div className="bg-green-500 text-white px-4 py-2 rounded-2xl text-sm">
-                {typingText}
+            <h2 className="text-2xl font-bold">
+              👤 あなた
+            </h2>
+          </div>
+
+          <div className="h-[350px] overflow-y-auto">
+            <p className="text-2xl leading-relaxed font-bold break-words">
+              {myLatestMessage}
+            </p>
+          </div>
+        </div>
+
+        {/* AI */}
+        <div className="relative rounded-3xl border border-green-500/30 bg-green-500/10 p-8 overflow-hidden">
+          <div className="mb-8 text-right">
+            <p className="text-green-300 text-sm">
+              相手の意見
+            </p>
+
+            <h2 className="text-2xl font-bold">
+              🤖 メスクソガキ
+            </h2>
+          </div>
+
+          <div className="h-[350px] overflow-y-auto">
+            <p className="text-2xl leading-relaxed font-bold text-left break-words">
+              {aiLatestMessage}
+
+              {(isTyping || isThinking) && (
                 <span className="animate-pulse">|</span>
-              </div>
-            </div>
-          )}
-
-          <div ref={chatEndRef} />
+              )}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* 入力欄 */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <textarea
-          className="w-full h-28 rounded-xl bg-black/40 border border-white/10 p-4 text-sm text-white outline-none"
-          placeholder="ここに意見を書く..."
+          className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-lg text-white outline-none resize-none"
+          placeholder="相手の主張に反論しよう..."
           value={input}
           onChange={(e) => onChangeInput(e.target.value)}
-          disabled={phase === "reply"}
+          disabled={phase === "reply" || isTyping || isThinking}
         />
 
         <button
-          className="w-full rounded-xl bg-white py-3 font-semibold text-black disabled:opacity-50"
           onClick={onSendMessage}
+          disabled={isTyping || isThinking || (phase === "answer" && !input.trim())}
+          className="w-full rounded-2xl bg-white py-5 font-bold text-black hover:bg-gray-200 transition disabled:opacity-50"
         >
-          {phase === "answer" 
-            ? "これで論破" 
-            : round === 5 
-              ? "最終判定へ" 
-              : "確認"}
+          {isThinking 
+            ? "考え中..." 
+            : phase === "answer"
+            ? "これで論破する"
+            : round === 5
+            ? "最終判定へ"
+            : "次のラウンドへ"}
         </button>
       </div>
     </div>

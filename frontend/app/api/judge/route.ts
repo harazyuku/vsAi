@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { performance } from 'perf_hooks';
+import { JudgeResult } from '../../battle/components/JudgeScreen';
+
+interface Message {
+  role: string;
+  content: string;
+}
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -8,7 +14,7 @@ export async function POST(request: Request) {
   console.log('GEMINI_API_KEY exists (Judge):', !!process.env.GEMINI_API_KEY);
   try {
     const start = performance.now();
-    const { messages } = await request.json();
+    const { messages }: { messages: Message[] } = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY is not set');
@@ -20,7 +26,7 @@ export async function POST(request: Request) {
 
     // 会話履歴をテキスト形式に整形する
     const conversationHistory = messages
-      .map((m: any) => `${m.role}: ${m.content}`)
+      .map((m: Message) => `${m.role}: ${m.content}`)
       .join('\n');
     const promptConstructEnd = performance.now();
     console.log(`Prompt construction took: ${promptConstructEnd - start}ms`);
@@ -67,21 +73,22 @@ ${conversationHistory}
       throw new Error('Empty response from AI model');
     }
 
-    const resultJson = JSON.parse(resultText);
+    const resultJson: JudgeResult = JSON.parse(resultText);
     const jsonParseEnd = performance.now();
     console.log(`JSON parsing took: ${jsonParseEnd - aiCallEnd}ms`);
     console.log(`Total time: ${jsonParseEnd - start}ms`);
 
     return NextResponse.json(resultJson);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Judge API Error:', error);
-    const status = error.status || 500;
+    const err = error as Error;
+    const status = (error as any).status || 500;
     
     return NextResponse.json(
       { 
         error: '判定に失敗しました。',
-        details: error.message
+        details: err.message
       },
       { status: status }
     );

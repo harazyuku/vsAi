@@ -17,6 +17,7 @@ export default function Page() {
   const [round, setRound] = useState(1);
   const [typingText, setTypingText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const [showNextRound, setShowNextRound] = useState(false);
   const [phase, setPhase] = useState<"answer" | "reply">("answer");
   const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
@@ -77,22 +78,31 @@ export default function Page() {
       { role: "あなた", content: text },
     ]);
 
-    // AI側の意見
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
-    });
+    setIsThinking(true);
 
-    const data = await response.json();
+    try {
+      // AI側の意見
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
 
-    if (data.error) {
-      console.error('API Error:', data.error);
-      alert('AIの呼び出しに失敗しました: ' + data.details);
-      return;
+      const data = await response.json();
+
+      if (data.error) {
+        console.error('API Error:', data.error);
+        alert('AIの呼び出しに失敗しました: ' + data.details);
+        setIsThinking(false);
+        return;
+      }
+
+      setIsThinking(false);
+      typeText(data.reply);
+    } catch (error) {
+      console.error('Fetch Error:', error);
+      setIsThinking(false);
     }
-
-    typeText(data.reply);
   };
 
   const sendTeamMessage = () => {
@@ -195,6 +205,7 @@ export default function Page() {
       {screen === "team" ? (
         <TeamScreen
           round={round}
+          messages={messages}
           teamMessages={teamMessages}
           input={input}
           onChangeInput={setinput}
@@ -205,12 +216,14 @@ export default function Page() {
         <BattleScreen
           round={round}
           messages={messages}
+          teamMessages={teamMessages}
           input={input}
           onChangeInput={setinput}
           onSendMessage={handleAction}
           phase={phase}
           isTyping={isTyping}
           typingText={typingText}
+          isThinking={isThinking}
           chatEndRef={chatEndRef}
         />
       ) : (
