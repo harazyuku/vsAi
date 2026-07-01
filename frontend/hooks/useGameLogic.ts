@@ -7,6 +7,9 @@ export type Message = {
   round: number;
 };
 
+type Screen = "team" | "battle" | "judge";
+type Phase = "answer" | "reply";
+
 export const useGameLogic = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setinput] = useState("");
@@ -15,10 +18,12 @@ export const useGameLogic = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [showNextRound, setShowNextRound] = useState(false);
-  const [phase, setPhase] = useState<"answer" | "reply">("answer");
-  const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
+  const [phase, setPhase] = useState<Phase>("answer");
+  const [screen, setScreen] = useState<Screen>("team");
   const [teamMessages, setTeamMessages] = useState<Message[]>([]);
   const [aiCharacter, setAiCharacter] = useState<AICharacter | null>(null);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [shufflingCharacter, setShufflingCharacter] = useState<AICharacter | null>(null);
   const [currentTopic, setCurrentTopic] = useState<{ topic: string; instructionTemplate: string; stance: string; background: "school" | "court" | "deathgame" } | null>(null);
   const [userStance, setUserStance] = useState<string | null>(null);
   const [isJudging, setIsJudging] = useState(false);
@@ -27,9 +32,34 @@ export const useGameLogic = () => {
 
   useEffect(() => {
     const charIds = Object.keys(aiCharacters);
-    const randomCharId = charIds[Math.floor(Math.random() * charIds.length)];
-    const character = aiCharacters[randomCharId];
-    setAiCharacter(character);
+    
+    // アニメーション開始直前の初期化
+    const initialCharId = charIds[Math.floor(Math.random() * charIds.length)];
+    setShufflingCharacter(aiCharacters[initialCharId]);
+    setIsShuffling(true);
+
+    let lastCharId: string | null = initialCharId;
+    
+    let shuffleInterval = setInterval(() => {
+      let randomCharId = charIds[Math.floor(Math.random() * charIds.length)];
+      
+      // 同じIDが連続しないようにする
+      while (randomCharId === lastCharId && charIds.length > 1) {
+        randomCharId = charIds[Math.floor(Math.random() * charIds.length)];
+      }
+      
+      lastCharId = randomCharId;
+      setShufflingCharacter(aiCharacters[randomCharId]);
+    }, 50);
+
+    // 2秒後に確定
+    setTimeout(() => {
+      clearInterval(shuffleInterval);
+      const finalCharId = charIds[Math.floor(Math.random() * charIds.length)];
+      setAiCharacter(aiCharacters[finalCharId]);
+      setIsShuffling(false);
+      // setShufflingCharacter(null); // クリアしないことで、最終リビール画面で確定キャラが表示されるようにする
+    }, 2000);
 
     const randomTopic = topics[Math.floor(Math.random() * topics.length)];
     const aiStance = randomTopic.stances[Math.floor(Math.random() * randomTopic.stances.length)];
@@ -101,46 +131,55 @@ export const useGameLogic = () => {
     setTeamMessages((prev) => [...prev, { role: "you", content: text, round }]);
   };
 
-  const handleAction = async () => {
-    if (screen === "team") {
-      setShowNextRound(true);
-      setTimeout(() => {
-        setShowNextRound(false);
-        setScreen("battle");
-        setPhase("answer");
-      }, 1200);
-    } else {
-      if (phase === "answer") {
-        sendMessage();
-        return;
-      }
-      if (round === 5) {
-        setScreen("judge");
-        setIsJudging(true);
-        try {
-          const response = await fetch("/api/judge", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages, topic: currentTopic?.topic }),
-          });
-          const data = await response.json();
-          setJudgeResult(data);
-        } catch (err) {
-          console.error(err);
-        } finally {
-          setIsJudging(false);
-        }
-        return;
-      }
-      setShowNextRound(true);
-      setTimeout(() => {
-        setShowNextRound(false);
-        setScreen("team");
-        setPhase("answer");
-        nextRound();
-      }, 1200);
+const handleAction = async () => {
+  const nextScreen: Screen = screen === "team" ? "battle" : "team";
+
+  // ジャッジは先に分岐
+  if (screen === "battle" && round === 5 && phase === "reply") {
+    setScreen("judge");
+    setIsJudging(true);
+
+    try {
+      const response = await fetch("/api/judge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages,
+          topic: currentTopic?.topic,
+        }),
+      });
+
+      const data = await response.json();
+      setJudgeResult(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsJudging(false);
     }
-  };
+    return;
+  }
+
+  // 入力フェーズ
+  if (phase === "answer" && screen === "battle") {
+    sendMessage();
+    return;
+  }
+
+  // 1. まずトランジション画面（真っ黒）を表示
+  setShowNextRound(true);
+
+  // 2. 500ms後（画面が完全に黒に覆われた後）に裏の画面状態を切り替える
+  setTimeout(() => {
+    setScreen(nextScreen);
+    setPhase("answer");
+
+    if (nextScreen === "team") {
+      nextRound();
+    }
+    // ここでは setShowNextRound(false) は呼ばない（PhaseTransitionScreen側がフェードアウト後にコールバックする）
+  }, 500);
+};
+
 
   const resetGame = () => {
     setRound(1);
@@ -151,8 +190,8 @@ export const useGameLogic = () => {
   };
 
   return {
-    messages, input, setinput, round, typingText, isTyping, isThinking, showNextRound,
-    phase, screen, chatEndRef, teamMessages, aiCharacter, currentTopic, userStance,
+    messages, input, setinput, round, typingText, isTyping, isThinking, showNextRound, setShowNextRound,
+    phase, screen, chatEndRef, teamMessages, aiCharacter, isShuffling, shufflingCharacter, currentTopic, userStance,
     isJudging, judgeResult, sendMessage, sendTeamMessage, handleAction, resetGame
   };
 };

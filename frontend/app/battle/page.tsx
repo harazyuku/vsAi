@@ -1,32 +1,38 @@
 "use client";
 
+import { useState } from "react";
 import SchoolBackground from "./components/Background/SchoolBackground";
 import CourtBackground from "./components/Background/CourtBackground";
 import DeathGameBackground from "./components/Background/DeathGameBackground";
+import ShuffleScreen from "./components/ShuffleScreen";
 import TeamScreen from "./components/TeamScreen";
 import BattleScreen from "./components/BattleScreen";
 import JudgeScreen from "./components/JudgeScreen";
+import PhaseTransitionScreen from "./components/PhaseTransitionScreen";
 import { useGameLogic } from "../../hooks/useGameLogic";
+import { Topic } from "../config/aiConfig";
 
 export default function Page() {
   const {
-    messages, input, setinput, round, typingText, isTyping, isThinking, showNextRound,
-    phase, screen, chatEndRef, teamMessages, aiCharacter, currentTopic, userStance,
+    messages, input, setinput, round, typingText, isTyping, isThinking, showNextRound, setShowNextRound,
+    phase, screen, chatEndRef, teamMessages, aiCharacter, isShuffling, shufflingCharacter, currentTopic, userStance,
     isJudging, judgeResult, sendMessage, sendTeamMessage, handleAction, resetGame
   } = useGameLogic();
+  
+  const [showShuffle, setShowShuffle] = useState(true);
 
-  if (!aiCharacter || !currentTopic) return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black">
-      <div className="text-center space-y-4">
-        <div className="text-4xl font-black tracking-widest animate-pulse text-white">
-          NOW LOADING...
-        </div>
-        <div className="w-16 h-1 bg-white/20 mx-auto rounded-full overflow-hidden">
-          <div className="h-full bg-white animate-loading-bar"></div>
-        </div>
-      </div>
-    </div>
-  );
+  // currentTopic または aiCharacter がロードされるまでは ShuffleScreen を表示
+  if (!currentTopic || (!aiCharacter && isShuffling)) {
+    return (
+      <ShuffleScreen 
+        shufflingCharacter={shufflingCharacter} 
+        finalCharacter={aiCharacter}
+        topic={currentTopic || { topic: "", instructionTemplate: "", stances: [], background: "school" }}
+        userStance={userStance || ""}
+        onClose={() => setShowShuffle(false)}
+      />
+    );
+  }
 
   const renderBackground = () => {
     switch (currentTopic.background) {
@@ -47,15 +53,22 @@ export default function Page() {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
+      {showShuffle && (
+        <ShuffleScreen 
+          shufflingCharacter={isShuffling ? shufflingCharacter : null} 
+          finalCharacter={aiCharacter} 
+          topic={currentTopic}
+          userStance={userStance || ""}
+          onClose={() => setShowShuffle(false)}
+        />
+      )}
+
       {showNextRound && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
-          <div className="text-5xl font-bold animate-pulse">
-            {screen === "team" ? "TEAM PHASE" : "BATTLE PHASE"}
-          </div>
-          <div className="text-xl text-white/60 mt-4">
-            第 {round} ラウンド
-          </div>
-        </div>
+        <PhaseTransitionScreen 
+          screen={screen} 
+          round={round} 
+          onClose={() => setShowNextRound(false)} 
+        />
       )}
 
       {screen === "team" ? (
@@ -69,6 +82,7 @@ export default function Page() {
           onConfirmTeamAction={handleAction}
           topic={currentTopic.topic}
           userStance={userStance!}
+          aiCharacter={aiCharacter}
         />
       ) : screen === "battle" ? (
         <BattleScreen
