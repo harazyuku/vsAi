@@ -1,156 +1,163 @@
-"use client";
+import { useGameLogic } from '@/hooks/useGameLogic/useGameLogic';
+import { useTimer } from '@/hooks/useTimer';
+import React, { useEffect, useState } from 'react'
+import { AICharacter } from "@/app/config/aiConfig";
 
-import { KeyboardEvent, useEffect, useRef } from "react";
-import { Message } from "../../../hooks/useGameLogic";
-import { socket } from "../../../lib/socket";
+type Props = ReturnType<typeof useGameLogic> & {
+  onChangeScreen: () => void;
+};
 
-interface TeamScreenProps {
-  round: number;
-  messages: Message[];
-  teamMessages: Message[];
-  input: string;
-  onChangeInput: (value: string) => void;
-  onSendTeamMessage: (msg: Message) => void;
-  onConfirmTeamAction: () => void;
-  topic: string;
-  userStance: string;
-}
-
-export default function TeamScreen({
-  round,
-  messages,
+// チームロジック
+function TeamScreen({
+  wait,
   teamMessages,
-  input,
-  onChangeInput,
-  onSendTeamMessage,
-  onConfirmTeamAction,
-  topic,
-  userStance,
-}: TeamScreenProps) {
-  const historyScrollRef = useRef<HTMLDivElement>(null);
-  const teamScrollRef = useRef<HTMLDivElement>(null);
+  battleMessages,
+  sendTeamMessage,
+  onChangeScreen,
+  teamBottomRef,
+  battleBottomRef,
+  scrollTeamToBottom,
+  scrollBattleToBottom,
+}: Props) {
+  const { time, startTeamTimer, stopTeamTimer } = useTimer();
+  const [input, setInput] = useState("");
 
-  const roomId = "room-1";
-  const userId = "user-1";
+  // フロー
+  const teamFlow = async () => {
+    await wait(1700);
+    // 残り時間タイマースタート
+    await startTeamTimer();
+    stopTeamTimer();
+    onChangeScreen();
+  };
+
 
   useEffect(() => {
-    if (historyScrollRef.current) {
-      historyScrollRef.current.scrollTop =
-        historyScrollRef.current.scrollHeight;
-    }
-  }, [messages]);
 
+    teamFlow();
+    return () => {
+
+    };
+  }, []);
+
+  // メッセージが増えたらスクロール
   useEffect(() => {
-    if (teamScrollRef.current) {
-      teamScrollRef.current.scrollTop =
-        teamScrollRef.current.scrollHeight;
-    }
+    scrollTeamToBottom();
   }, [teamMessages]);
 
-  // 受信（これが本体）
   useEffect(() => {
-    const handler = (msg: Message) => {
-      onSendTeamMessage(msg);
-    };
-
-    socket.on("team-message", handler);
-
-    return () => {
-      socket.off("team-message", handler);
-    };
-  }, [onSendTeamMessage]);
-
-  // 送信
-  const send = () => {
-    if (!input.trim()) return;
-
-    socket.emit("team-message", {
-      roomId,
-      userId,
-      content: input,
-    });
-
-    onChangeInput("");
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-      send();
-    }
-  };
+    scrollBattleToBottom();
+  }, [battleMessages]);
 
   return (
-    <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex gap-8">
+    <div>
+      <div className="absolute top-20 right-30 w-28 h-28 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center">
+        <span className="text-xs tracking-[0.2em] text-gray-400">
+          TIME
+        </span>
 
-      {/* 左 */}
-      <div className="w-[300px] border-r border-white/10 pr-8">
-        <h3 className="text-sm font-bold text-gray-400 mb-4">バトル履歴</h3>
-        <div ref={historyScrollRef} className="space-y-3 h-[700px] overflow-y-auto">
-          {messages.map((m, i) => (
-            <div key={i} className="p-3 rounded-xl text-sm bg-white/5">
-              <span className="font-bold block mb-1 text-gray-300">
-                {m.name}
-              </span>
-              <p className="text-gray-200">{m.content}</p>
-            </div>
-          ))}
-        </div>
+        <span
+          className={`text-5xl font-black leading-none 
+            `}
+        >
+          {time}
+        </span>
       </div>
 
-      {/* メイン */}
-      <div className="flex-1 flex flex-col justify-between">
+      <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex gap-8">
 
-        <div className="mb-8">
-          <p className="text-sm text-gray-400">チームディスカッション</p>
-          <p className="text-2xl font-bold">{topic}</p>
-          <p className="text-sm text-blue-400 mt-1">
-            あなたの立場: {userStance}
-          </p>
-        </div>
-
-        {/* チャット */}
-        <div
-          ref={teamScrollRef}
-          className="bg-black/40 border border-white/10 rounded-2xl p-6 h-[400px] mb-8 overflow-y-auto space-y-4"
-        >
-          {teamMessages.map((m, i) => (
-            <div key={i} className="flex">
-              <div className="px-4 py-2 rounded-2xl bg-white text-black">
-                <div className="text-xs opacity-60">{m.name}</div>
-                {m.content}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 入力 */}
-        <div>
-          <textarea
-            className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-sm text-white"
-            value={input}
-            onChange={(e) => onChangeInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="チームの方針をまとめる..."
-          />
-
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <button
-              className="bg-white/10 py-4 rounded-xl"
-              onClick={send}
-            >
-              送信
-            </button>
-
-            <button
-              className="bg-white text-black py-4 rounded-xl"
-              onClick={onConfirmTeamAction}
-            >
-              確定
-            </button>
+        {/* バトル履歴 */}
+        <div className="w-[300px] border-r border-white/10 pr-8">
+          <h3 className="text-sm font-bold text-gray-400 mb-4">バトル履歴</h3>
+          <div className="space-y-3 h-[700px] overflow-y-auto">
+            {battleMessages.length === 0 ? (
+              <p className="text-white/50 text-sm">ここにバトル画面の履歴が表示されます...</p>
+            ) : (
+              battleMessages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`p-3 rounded-xl text-sm ${m.role === "あなた" ? "bg-black/40" : "bg-black/60"
+                    }`}
+                >
+                  <span className={`${m.role === "あなた" ? "text-blue-400" : "text-blue-200"} font-bold block mb-1`}>
+                    {m.role === "あなた" ? "あなた" : "敵AI"}
+                  </span>
+                  <p className="text-gray-200">{m.text}</p>
+                </div>
+              ))
+            )}
+            <div ref={battleBottomRef} />
           </div>
         </div>
 
+        {/* メイン */}
+        <div className="flex-1 flex flex-col justify-between">
+
+          <div className="mb-8">
+            <p className="text-sm text-gray-400">チームディスカッション</p>
+            <p className="text-2xl font-bold">トピック</p>
+            <p className="text-sm text-blue-400 mt-1">
+              あなたの立場: こっち
+            </p>
+          </div>
+
+          {/* チャット */}
+          <div className="bg-black/40 border border-white/10 rounded-2xl p-6 h-[350px] mb-8 overflow-y-auto space-y-4">
+            {teamMessages.map((m, i) => (
+              <div
+                key={i}
+                className={`flex ${m.role === "あなた" ? "justify-start" : "justify-end"
+                  }`}
+              >
+                <div
+                  className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm ${m.role === "あなた"
+                    ? "bg-white text-black rounded-br-none"
+                    : "bg-white/10 text-white rounded-bl-none"
+                    }`}>
+                  <p className="text-xs mb-1"> {m.role} </p>
+                  <p className="font-bold break-words whitespace-pre-wrap"> {m.text} </p>
+                </div>
+              </div>
+            ))}
+            <div ref={teamBottomRef} />
+          </div>
+
+          {/* 入力 */}
+          <div>
+            <textarea
+              className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-sm text-white"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="チームの方針をまとめる..."
+            />
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <button
+                className="bg-white/10 py-4 rounded-xl"
+                onClick={() => {
+                  sendTeamMessage(input);
+                  setInput("");
+                }}
+              >
+                送信
+              </button>
+
+              <button
+                className="bg-white text-black py-4 rounded-xl"
+                onClick={() => {
+                  onChangeScreen();
+                  scrollTeamToBottom();
+                }}
+              >
+                確定
+              </button>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
-  );
+  )
 }
+
+export default TeamScreen

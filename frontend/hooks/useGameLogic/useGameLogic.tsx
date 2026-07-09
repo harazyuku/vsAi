@@ -1,0 +1,208 @@
+import { useRef, useState } from "react";
+import { aiCharacters, type AICharacter } from "@/app/config/aiConfig";
+import { topics, type Topic } from "@/app/config/aiConfig";
+
+export const useGameLogic = () => {
+
+  // メッセージの型定義
+  type TeamMessage = {
+    text: string;
+    role: "あなた" | "味方AI";
+    createdAt?: number;
+  };
+
+  type BattleMessage = {
+    text: string;
+    role: "あなた" | "敵AI";
+    createdAt?: number;
+  };
+
+  const [teamMessages, setTeamMessages] = useState<TeamMessage[]>([]);
+  const [battleMessages, setBattleMessages] = useState<BattleMessage[]>([]);
+
+  const teamBottomRef = useRef<HTMLDivElement>(null);
+  const battleBottomRef = useRef<HTMLDivElement>(null);
+
+  const aiList = Object.values(aiCharacters);
+  const topicList = Object.values(topics);
+  const [stance, setStance] = useState("");
+  const [aiStance, setAiStance] = useState("");
+  const [selectedAI, setSelectedAI] = useState<AICharacter | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+
+    // AIのタイピング演出、すでに表示済みのメッセージかどうかのstate
+  const [typedMessageIds, setTypedMessageIds] = useState<number[]>([]);
+
+  // チームメッセージ保存
+  const sendTeamMessage = (input: string) => {
+    if (!input.trim()) return;
+
+    setTeamMessages(prev => [
+      ...prev,
+      {
+        text: input,
+        role: "あなた"
+      }
+    ]);
+  };
+
+  // AIメッセージ保存
+  const sendAiBattleMessage = (message: string) => {
+    if (!message.trim()) return;
+
+    setBattleMessages(prev => [
+      ...prev,
+      {
+        text: message,
+        role: "敵AI"
+      }
+    ]);
+  };
+  
+  // バトルメッセージ保存
+  const sendBattleMessage = (input: string) => {
+    if (!input.trim()) return;
+
+    setBattleMessages(prev => [
+      ...prev,
+      {
+        text: input,
+        role: "あなた"
+      }
+    ]);
+  };
+
+  // 制限時間内に送信できなかった場合
+  const timeUpMessage = () => {
+  return "意見なし";
+};
+
+
+
+  // チームのチャット履歴を下までスクロール
+  const scrollTeamToBottom = () => {
+    teamBottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
+  // バトルのチャット履歴を下までスクロール
+  const scrollBattleToBottom = () => {
+    battleBottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
+  // 待つ処理
+  const wait = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  // 対戦相手をランダムで決定
+  const selectAi = () => {
+    const randomIndex = Math.floor(Math.random() * aiList.length);
+    return aiList[randomIndex];
+  };
+
+  // トピックをランダムで決定
+  const selectTopic = () => {
+    const randomIndex = Math.floor(Math.random() * topicList.length);
+    return topicList[randomIndex];
+  };
+
+  // 反対か賛成かランダムに決める処理
+  const selectStance = (topic: Topic) => {
+    const randomIndex = Math.floor(Math.random() * topic.stances.length);
+    return topic.stances[randomIndex];
+  };
+
+  // AI 反対か賛成か
+  const selectAiStance = (topic: Topic, userStance: string) => {
+  const aiSide = topic.stances.find(
+    (stance) => stance !== userStance
+  );
+
+  if (!aiSide) {
+    throw new Error("AIスタンスが決定できません");
+  }
+
+  return aiSide;
+};
+
+ // AI用プロンプトを作成
+const createBattlePrompt = (userMessage: string) => {
+  if (!selectedAI || !selectedTopic) {
+    throw new Error("AIまたはTopicが選択されていません");
+  }
+
+  return `
+${selectedAI.persona}
+
+${selectedTopic.instructionTemplate
+  .replace("{topic}", selectedTopic.topic)
+  .replace("{stance}", aiStance)
+}
+
+ユーザーの意見:
+${userMessage}
+
+上記のユーザーの意見に対して、あなたの立場から反論してください。
+`;
+};
+
+// AIに送信
+const sendAI = async (prompt: string) => {
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+    }),
+  });
+
+  const data = await response.json();
+
+  return data.reply;
+};
+
+  return {
+    wait,
+
+    // メッセージ
+    teamMessages,
+    sendTeamMessage,
+    battleMessages,
+    sendBattleMessage,
+    sendAiBattleMessage,
+    timeUpMessage,
+
+    // スクロール
+    teamBottomRef,
+    battleBottomRef,
+    scrollTeamToBottom,
+    scrollBattleToBottom,
+
+    // aiConfig関連
+    stance,
+    setStance,
+    aiStance,
+    setAiStance,
+    selectedAI,
+    setSelectedAI,
+    selectedTopic,
+    setSelectedTopic,
+    selectAi,
+    selectTopic,
+    selectStance,
+    selectAiStance,
+    aiList,
+    topicList,
+    createBattlePrompt,
+    sendAI,
+
+    // Aiのタイピング演出
+    typedMessageIds, 
+    setTypedMessageIds,
+  };
+};
