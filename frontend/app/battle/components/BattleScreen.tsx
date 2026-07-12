@@ -6,6 +6,7 @@ import { TypeAnimation } from "react-type-animation";
 
 type Props = ReturnType<typeof useGameLogic> & {
   onChangeScreen: () => void;
+  setShowRoundScreen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 // チームロジック
@@ -18,6 +19,7 @@ function BattleScreen({
   timeUpMessage,
 
   onChangeScreen,
+  setShowRoundScreen,
 
   teamBottomRef,
   battleBottomRef,
@@ -29,6 +31,12 @@ function BattleScreen({
   selectedAI,
   typedMessageIds,
   setTypedMessageIds,
+
+  nextRound,
+  round,
+
+  stance,
+  selectedTopic,
 }: Props) {
   const { time, startBattleTimer, stopBattleTimer } = useTimer();
   const [input, setInput] = useState("");
@@ -57,14 +65,16 @@ function BattleScreen({
 
   // フロー
   const battleFlow = async () => {
-    await wait(1700);
+   setShowRoundScreen(true);
+    await wait(2200);
+    setShowRoundScreen(false);
 
+    // 残り時間タイマースタート
     await startBattleTimer();
 
     const message = inputRef.current.trim() || timeUpMessage();
 
     await handleSendMessage(message);
-
     // onChangeScreen();
   };
 
@@ -130,13 +140,17 @@ function BattleScreen({
           {/* ヘッダー */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">バトルフェーズ</p>
-              <h1 className="text-2xl font-bold">トピック</h1>
+              <h1 className="text-xl text-gray-400">あなたは『<span>{stance}</span>』派です</h1>
+              {selectedTopic && (
+                <h1 className="text-2xl font-bold">
+                  {selectedTopic.topic}
+                </h1>
+              )}
             </div>
 
             <div className="text-center">
               <p className="text-gray-400 text-sm">ROUND</p>
-              <p className="text-5xl font-black">ラウンド数</p>
+              <p className="text-5xl font-black">{round}</p>
             </div>
           </div>
 
@@ -225,6 +239,7 @@ function BattleScreen({
               onClick={() => {
                 if (showConfirm) {
                   onChangeScreen();
+                  nextRound();
                   return;
                 }
                 handleSendMessage(input);

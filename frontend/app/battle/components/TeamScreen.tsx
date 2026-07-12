@@ -5,6 +5,7 @@ import { AICharacter } from "@/app/config/aiConfig";
 
 type Props = ReturnType<typeof useGameLogic> & {
   onChangeScreen: () => void;
+  setShowRoundScreen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 // チームロジック
@@ -13,22 +14,51 @@ function TeamScreen({
   teamMessages,
   battleMessages,
   sendTeamMessage,
+
   onChangeScreen,
+  setShowRoundScreen,
+
   teamBottomRef,
   battleBottomRef,
   scrollTeamToBottom,
   scrollBattleToBottom,
+
+  round,
+
+  stance,
+  selectedTopic,
+
+  createAllyPrompt,
+  sendAllyAI,
+  sendAiTeamMessage,
 }: Props) {
   const { time, startTeamTimer, stopTeamTimer } = useTimer();
   const [input, setInput] = useState("");
 
+  // 自分の発言〜aiが発言し画面に表示までのフロー
+  const handleSendMessage = async (message: string) => {
+    if (!message.trim()) return;
+    setInput("");
+
+    sendTeamMessage(message);
+
+    const prompt = createAllyPrompt(message);
+
+    const aiResponse = await sendAllyAI(prompt);
+
+    sendAiTeamMessage(aiResponse);
+  };
+
   // フロー
   const teamFlow = async () => {
-    await wait(1700);
+    setShowRoundScreen(true);
+    await wait(2200);
+    setShowRoundScreen(false);
+
     // 残り時間タイマースタート
-    await startTeamTimer();
-    stopTeamTimer();
-    onChangeScreen();
+    // await startTeamTimer();
+    // stopTeamTimer();
+    // onChangeScreen();
   };
 
 
@@ -93,13 +123,22 @@ function TeamScreen({
         {/* メイン */}
         <div className="flex-1 flex flex-col justify-between">
 
-          <div className="mb-8">
-            <p className="text-sm text-gray-400">チームディスカッション</p>
-            <p className="text-2xl font-bold">トピック</p>
-            <p className="text-sm text-blue-400 mt-1">
-              あなたの立場: こっち
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl text-gray-400">あなたは『<span>{stance}</span>』派です</h1>
+              {selectedTopic && (
+                <h1 className="text-2xl font-bold">
+                  {selectedTopic.topic}
+                </h1>
+              )}
+            </div>
+
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">ROUND</p>
+              <p className="text-5xl font-black">{round}</p>
+            </div>
           </div>
+
 
           {/* チャット */}
           <div className="bg-black/40 border border-white/10 rounded-2xl p-6 h-[350px] mb-8 overflow-y-auto space-y-4">
@@ -113,12 +152,19 @@ function TeamScreen({
                   className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm ${m.role === "あなた"
                     ? "bg-white text-black rounded-br-none"
                     : "bg-white/10 text-white rounded-bl-none"
-                    }`}>
-                  <p className="text-xs mb-1"> {m.role} </p>
-                  <p className="font-bold break-words whitespace-pre-wrap"> {m.text} </p>
+                    }`}
+                >
+                  <p className="text-xs mb-1">
+                    {m.role}
+                  </p>
+
+                  <p className="font-bold break-words whitespace-pre-wrap">
+                    {m.text}
+                  </p>
                 </div>
               </div>
             ))}
+
             <div ref={teamBottomRef} />
           </div>
 
@@ -135,7 +181,7 @@ function TeamScreen({
               <button
                 className="bg-white/10 py-4 rounded-xl"
                 onClick={() => {
-                  sendTeamMessage(input);
+                  handleSendMessage(input);
                   setInput("");
                 }}
               >

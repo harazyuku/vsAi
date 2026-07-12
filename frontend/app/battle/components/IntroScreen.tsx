@@ -79,23 +79,10 @@ function IntroScreen({
     await wait(1500);
     setShow(true);
 
-    // トピックを決定
-    const topic = selectTopic();
-    setSelectedTopic(topic);
-
-    // 賛成か反対かを決定
-    const stance = selectStance(topic);
-    setStance(stance);
-    
-    const aiStance = selectAiStance(topic, stance);
-    setAiStance(aiStance);
-
+    await wait(3000);
     // teamScreenを表示
-    await wait(1000);
     onChangeScreen();
-
     // introScreenがスッと消えるcss
-    await wait(1000);
     setIsClosing(true);
 
     // introScreenを消す

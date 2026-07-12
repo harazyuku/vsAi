@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { aiCharacters, type AICharacter } from "@/app/config/aiConfig";
+import { JudgeResult } from "@/app/battle/components/JudgeScreen";
 import { topics, type Topic } from "@/app/config/aiConfig";
 
 export const useGameLogic = () => {
@@ -30,8 +31,26 @@ export const useGameLogic = () => {
   const [selectedAI, setSelectedAI] = useState<AICharacter | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
 
-    // AIのタイピング演出、すでに表示済みのメッセージかどうかのstate
+  // AIのタイピング演出、すでに表示済みのメッセージかどうかのstate
   const [typedMessageIds, setTypedMessageIds] = useState<number[]>([]);
+
+  // ラウンド数
+  const [round, setRound] = useState(1);
+
+  // AI審判によるジャッジ
+  const [judgeResult, setJudgeResult] = useState<JudgeResult | null>(null);
+
+  const sendAiTeamMessage = (message?: string) => {
+    if (!message?.trim()) return;
+
+    setTeamMessages(prev => [
+      ...prev,
+      {
+        text: message,
+        role: "味方AI"
+      }
+    ]);
+  };
 
   // チームメッセージ保存
   const sendTeamMessage = (input: string) => {
@@ -58,7 +77,7 @@ export const useGameLogic = () => {
       }
     ]);
   };
-  
+
   // バトルメッセージ保存
   const sendBattleMessage = (input: string) => {
     if (!input.trim()) return;
@@ -74,8 +93,8 @@ export const useGameLogic = () => {
 
   // 制限時間内に送信できなかった場合
   const timeUpMessage = () => {
-  return "意見なし";
-};
+    return "意見なし";
+  };
 
 
 
@@ -117,54 +136,125 @@ export const useGameLogic = () => {
 
   // AI 反対か賛成か
   const selectAiStance = (topic: Topic, userStance: string) => {
-  const aiSide = topic.stances.find(
-    (stance) => stance !== userStance
-  );
+    const aiSide = topic.stances.find(
+      (stance) => stance !== userStance
+    );
+    if (!aiSide) {
+      throw new Error("AIスタンスが決定できません");
+    }
+    setAiStance(aiSide);
 
-  if (!aiSide) {
-    throw new Error("AIスタンスが決定できません");
-  }
+    return aiSide;
+  };
 
-  return aiSide;
-};
+  // AI用プロンプトを作成
+  const createBattlePrompt = (userMessage: string) => {
+    if (!selectedAI || !selectedTopic) {
+      throw new Error("AIまたはTopicが選択されていません");
+    }
 
- // AI用プロンプトを作成
-const createBattlePrompt = (userMessage: string) => {
-  if (!selectedAI || !selectedTopic) {
-    throw new Error("AIまたはTopicが選択されていません");
-  }
+    return `
+        ${selectedAI.persona}
 
-  return `
-${selectedAI.persona}
-
-${selectedTopic.instructionTemplate
-  .replace("{topic}", selectedTopic.topic)
-  .replace("{stance}", aiStance)
-}
+        ${selectedTopic.instructionTemplate
+        .replace("{topic}", selectedTopic.topic)
+        .replace("{stance}", aiStance)
+      }
 
 ユーザーの意見:
 ${userMessage}
 
 上記のユーザーの意見に対して、あなたの立場から反論してください。
 `;
-};
+  };
 
-// AIに送信
-const sendAI = async (prompt: string) => {
-  const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      prompt,
-    }),
-  });
+  // AIに送信
+  const sendAI = async (prompt: string) => {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+      }),
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  return data.reply;
-};
+    return data.reply;
+  };
+
+
+  // 味方AI
+  // AI用プロンプトを作成
+  const createAllyPrompt = (userMessage: string) => {
+    if (!selectedTopic) {
+      throw new Error("Topicが選択されていません");
+    }
+
+    return `
+    あなたはユーザーの味方の元気なお姉さんです。
+    ユーザーと同じ${stance}派の立場で、会話しながらディベートをサポートしてください。
+    ただし、ユーザーの代わりに答えを作ったり、議論を主導したりしてはいけません。
+    箇条書きではなく会話で進めてください。
+
+    ${selectedTopic.instructionTemplate
+        .replace("{topic}", selectedTopic.topic)
+        .replace("{stance}", stance)
+      }
+
+    ユーザーの意見:
+    ${userMessage}
+
+    上記の意見について、
+    ・主張を補強できるポイント
+    ・不足している視点
+    ・相手から反論された場合に考えられる対応
+
+    を簡潔に助言してください。
+    `;
+  };
+
+  const sendAllyAI = async (prompt: string) => {
+    const response = await fetch("/api/gpt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+      }),
+    });
+
+    const data = await response.json();
+
+    return data.reply;
+  };
+
+  // ラウンドを進める処理
+  const nextRound = () => {
+    setRound(prev => prev + 1);
+  };
+
+  // ジャッジAI
+  const judge = async () => {
+    const response = await fetch("/api/judge", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messages: battleMessages.map(m => ({
+          role: m.role,
+          content: m.text
+        })),
+      }),
+    });
+
+    const result = await response.json();
+    setJudgeResult(result);
+  };
 
   return {
     wait,
@@ -172,6 +262,7 @@ const sendAI = async (prompt: string) => {
     // メッセージ
     teamMessages,
     sendTeamMessage,
+    sendAiTeamMessage,
     battleMessages,
     sendBattleMessage,
     sendAiBattleMessage,
@@ -199,10 +290,20 @@ const sendAI = async (prompt: string) => {
     aiList,
     topicList,
     createBattlePrompt,
+    createAllyPrompt,
     sendAI,
+    sendAllyAI,
 
     // Aiのタイピング演出
-    typedMessageIds, 
+    typedMessageIds,
     setTypedMessageIds,
+
+    // ラウンド
+    nextRound,
+    round,
+
+    // AIのジャッジ
+    judge,
+    judgeResult,
   };
 };

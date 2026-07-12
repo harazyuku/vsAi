@@ -93,6 +93,10 @@ body {
   animation: fadeOut 1s ease forwards;
 }
 
+.quick-fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
 @keyframes fadeOut {
   from {
     opacity: 1;

@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 export interface JudgeResult {
@@ -14,17 +12,14 @@ export interface JudgeResult {
 }
 
 interface JudgeScreenProps {
-  isLoading: boolean;
-  result: JudgeResult | null;
-  onReset: () => void;
+  judgeResult: JudgeResult | null;
 }
 
-export default function JudgeScreen({
-  isLoading,
-  result,
-  onReset,
-}: JudgeScreenProps) {
-  if (isLoading) {
+function JudgeScreen({ judgeResult }: JudgeScreenProps) {
+  console.log("JudgeScreen - judgeResult received:", judgeResult);
+
+  if (!judgeResult) {
+
     return (
       <div className="relative z-10 w-[900px] h-[850px] flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8">
         <div className="flex flex-col items-center gap-6">
@@ -43,27 +38,27 @@ export default function JudgeScreen({
         </div>
       </div>
     );
-  }
+  };
 
-  if (!result) {
-    return (
-      <div className="relative z-10 w-[900px] h-[850px] flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 text-center">
-        <p className="text-red-400 mb-4">判定結果の取得に失敗したか、データが存在しません。</p>
-        <button
-          onClick={onReset}
-          className="px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition"
-        >
-          タイトルへ戻る
-        </button>
-      </div>
-    );
-  }
 
-  const isUserWinner = result.winner === "あなた";
+  //   return (
+  //     <div className="relative z-10 w-[900px] h-[850px] flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 text-center">
+  //       <p className="text-red-400 mb-4">判定結果の取得に失敗したか、データが存在しません。</p>
+  //       <button
+  //         onClick={onReset}
+  //         className="px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition"
+  //       >
+  //         タイトルへ戻る
+  //       </button>
+  //     </div>
+  //   );
+  // }
+
+  const isUserWinner = judgeResult.winner === "あなた";
 
   return (
     <div className="relative z-10 w-[900px] h-[850px] flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 overflow-y-auto">
-      
+
       {/* ヘッダー */}
       <div className="text-center border-b border-white/10 pb-4">
         <span className="px-3 py-1 text-xs font-bold tracking-widest bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full">
@@ -75,12 +70,11 @@ export default function JudgeScreen({
       {/* 勝者発表 */}
       <div className="flex flex-col items-center py-6">
         <div className="text-sm text-gray-400 mb-1">ディベート勝者</div>
-        <div className={`text-5xl font-black tracking-widest px-8 py-3 rounded-2xl ${
-          isUserWinner 
-            ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.2)]" 
-            : "bg-red-600/20 text-red-400 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-        }`}>
-          {result.winner === "あなた" ? "🏆 あなたの勝利 🏆" : "相手側の勝利"}
+        <div className={`text-5xl font-black tracking-widest px-8 py-3 rounded-2xl ${isUserWinner
+          ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+          : "bg-red-600/20 text-red-400 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+          }`}>
+          {judgeResult.winner === "あなた" ? "🏆 あなたの勝利 🏆" : "相手の勝利"}
         </div>
       </div>
 
@@ -90,12 +84,12 @@ export default function JudgeScreen({
         <div className="space-y-2">
           <div className="flex justify-between items-center text-sm font-semibold">
             <span className="text-blue-400 flex items-center gap-1">👤 あなた</span>
-            <span className="text-2xl font-bold">{result.score.user}点</span>
+            <span className="text-2xl font-bold">{judgeResult.score.user}点</span>
           </div>
           <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-1000"
-              style={{ width: `${result.score.user}%` }}
+              style={{ width: `${judgeResult.score.user}%` }}
             ></div>
           </div>
         </div>
@@ -104,12 +98,12 @@ export default function JudgeScreen({
         <div className="space-y-2">
           <div className="flex justify-between items-center text-sm font-semibold">
             <span className="text-red-400 flex items-center gap-1">😈 相手</span>
-            <span className="text-2xl font-bold">{result.score.ai}点</span>
+            <span className="text-2xl font-bold">{judgeResult.score.ai}点</span>
           </div>
           <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full transition-all duration-1000"
-              style={{ width: `${result.score.ai}%` }}
+              style={{ width: `${judgeResult.score.ai}%` }}
             ></div>
           </div>
         </div>
@@ -121,7 +115,7 @@ export default function JudgeScreen({
           <span>⚖️</span> 判定理由・総評
         </h3>
         <p className="text-sm text-gray-200 leading-relaxed">
-          {result.reason}
+          {judgeResult.reason}
         </p>
       </div>
 
@@ -130,14 +124,14 @@ export default function JudgeScreen({
         <div className="bg-blue-950/20 border border-blue-500/20 p-5 rounded-2xl">
           <h4 className="text-sm font-bold text-blue-400 mb-2">👤 あなたへのアドバイス</h4>
           <p className="text-xs text-gray-300 leading-relaxed">
-            {result.feedbackUser}
+            {judgeResult.feedbackUser}
           </p>
         </div>
 
         <div className="bg-red-950/20 border border-red-500/20 p-5 rounded-2xl">
           <h4 className="text-sm font-bold text-red-400 mb-2">AI（相手側）の評価</h4>
           <p className="text-xs text-gray-300 leading-relaxed">
-            {result.feedbackAi}
+            {judgeResult.feedbackAi}
           </p>
         </div>
       </div>
@@ -145,8 +139,7 @@ export default function JudgeScreen({
       {/* 操作ボタン */}
       <div className="pt-4">
         <Link
-          onClick={onReset}
-          href="/"
+          href="/top"
           className="flex justify-center items-center w-full py-4 bg-gradient-to-r from-white to-gray-200 text-black font-bold rounded-2xl text-lg hover:from-gray-100 hover:to-gray-300 transition duration-200 shadow-md transform active:scale-[0.98]"
         >
           Homeに戻る
@@ -154,4 +147,8 @@ export default function JudgeScreen({
       </div>
     </div>
   );
+
+
 }
+
+export default JudgeScreen

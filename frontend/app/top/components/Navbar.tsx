@@ -15,13 +15,13 @@ function Navbar() {
 
   {/* 右側 */}
   <div className="flex items-center gap-8 text-white">
-    <Link href="/">Home</Link>
-    <Link href="/history">戦歴</Link>
-    <Link href="/ranking">ランキング</Link>
-    <Link href="/profile">プロフィール</Link>
+    {/* <Link href="/">Home</Link> */}
+    <Link href="/howtoplay">遊び方</Link>
+    {/* <Link href="/ranking">ランキング</Link> */}
+    {/* <Link href="/profile">プロフィール</Link> */}
 
     <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
-      👤
+      <img src="https://github.com/harazyuku" alt="github" />
     </button>
   </div>
 

@@ -10,11 +10,11 @@ function Model({ onLoaded }: { onLoaded: () => void }) {
 
   // シーンが用意できたらロード完了を通知
   useEffect(() => {
-  if (scene) {
-    console.log("GLTF loaded");
-    onLoaded();
-  }
-}, [scene]);
+    if (scene) {
+      console.log("GLTF loaded");
+      onLoaded();
+    }
+  }, [scene]);
 
   return (
     <primitive
@@ -35,8 +35,8 @@ function SceneContents() {
   useFrame(() => {
     if (!modelRef.current) return;
 
-    
-    const targetZ = loaded ? 0 : -20;
+
+    const targetZ = loaded ? 0 : -150;
     modelRef.current.position.z += (targetZ - modelRef.current.position.z) * 0.07;
 
     // 回転方法
@@ -49,14 +49,11 @@ function SceneContents() {
       <directionalLight position={[7, 5, 5]} intensity={1.2} />
 
       <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-        <Center>
-          {/* おくから手前に来る距離 */}
-          <group ref={modelRef} position={[0, 0, -500]}>
-            <Suspense fallback={null}>
-              <Model onLoaded={() => setLoaded(true)} />
-            </Suspense>
-          </group>
-        </Center>
+        <group ref={modelRef} position={[0, 0, -20]}>
+          <Suspense fallback={null}>
+            <Model onLoaded={() => setLoaded(true)} />
+          </Suspense>
+        </group>
       </Float>
 
       <OrbitControls enableZoom={false} enablePan={false} />

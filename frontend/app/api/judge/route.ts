@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { performance } from 'perf_hooks';
-import { JudgeResult } from '../../battle/components/JudgeScreen';
+import { JudgeResult } from "@/app/battle/components/JudgeScreen";
 
 interface Message {
   role: string;
@@ -57,7 +57,7 @@ ${conversationHistory}
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash', // コストと応答速度のバランスが良いgemini-2.5-flashを使用
+      model: 'gemini-3.1-flash-lite',
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -74,6 +74,7 @@ ${conversationHistory}
     }
 
     const resultJson: JudgeResult = JSON.parse(resultText);
+    console.log("resultJson", resultJson);
     const jsonParseEnd = performance.now();
     console.log(`JSON parsing took: ${jsonParseEnd - aiCallEnd}ms`);
     console.log(`Total time: ${jsonParseEnd - start}ms`);
