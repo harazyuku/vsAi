@@ -40,3 +40,69 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
 }
+
+.fade-up {
+  animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 登場演出を派手にする処理 */
+@keyframes zoomSlash {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) translateZ(100px) scale(1.2);
+    filter: blur(6px);
+  }
+
+  100% {
+    transform: perspective(1200px) translateZ(0) scale(1);
+  }
+}
+
+.zoom-slash {
+  animation: zoomSlash 0.6s cubic-bezier(0.15, 1, 0.3, 1);
+}
+
+.screen {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.exit {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+.fade-out {
+  animation: fadeOut 1s ease forwards;
+}
+
+.quick-fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}

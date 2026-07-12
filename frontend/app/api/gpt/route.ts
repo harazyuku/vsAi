@@ -1,44 +1,43 @@
 import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+const groq = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
 });
 
 export async function POST(request: Request) {
   try {
-    const { messages } = await request.json();
+    const { prompt } = await request.json();
 
-    const conversation = messages
-      .map((m: any) => `${m.role}: ${m.content}`)
-      .join("\n");
+    if (!prompt) {
+      throw new Error("prompt is empty");
+    }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `
-あなたは公平なディベート審判です。
-
-以下の議論を読んで、
-
-- winner（human / ai / draw）
-- reason（50文字以内）
-
-をJSON形式で返してください。
-
-議論:
-${conversation}
-`,
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
     });
 
     return NextResponse.json({
-      result: response.text,
+      reply: response.choices[0].message.content,
     });
+
   } catch (error: any) {
-    console.error(error);
+    console.error("Groq Error:", error);
 
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
+      {
+        error: error.message,
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

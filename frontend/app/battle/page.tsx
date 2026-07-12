@@ -1,223 +1,121 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Background from "./components/Background";
+import { useEffect, useState } from "react";
+import { useGameLogic } from "@/hooks/useGameLogic/useGameLogic";
+import IntroScreen from "./components/IntroScreen";
 import TeamScreen from "./components/TeamScreen";
 import BattleScreen from "./components/BattleScreen";
+import CourtBackground from "./components/Background/CourtBackground";
+import DeathGameBackground from "./components/Background/DeathGameBackground";
+import SchoolBackground from "./components/Background/SchoolBackground";
+import RoundScreen from "./components/RoundScreen";
 import JudgeScreen from "./components/JudgeScreen";
 
-export type Message = {
-  role: string;
-  content: string;
-};
-
 export default function Page() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setinput] = useState("");
-  const [round, setRound] = useState(1);
-  const [typingText, setTypingText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [showNextRound, setShowNextRound] = useState(false);
-  const [phase, setPhase] = useState<"answer" | "reply">("answer");
-  const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const [teamMessages, setTeamMessages] = useState<Message[]>([]);
-  
-  // ジャッジ用ステート
-  const [isJudging, setIsJudging] = useState(false);
-  const [judgeResult, setJudgeResult] = useState<any>(null);
+  const game = useGameLogic();
 
-  // ラウンド数処理
-  const nextRound = () => {
-    setRound((prev) => prev + 1);
-  };
+  const [screen, setScreen] = useState<"intro" | "team" | "battle" | "judge">("intro");
+  const [showIntro, setShowIntro] = useState(true);
+  const [showRoundScreen, setShowRoundScreen] = useState(false);
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const {
+    selectAi,
+    selectTopic,
+    selectStance,
+    selectAiStance,
+    setSelectedAI,
+    setSelectedTopic,
+    setStance,
+    setAiStance,
+    round,
+    judge
+  } = game;
 
+  // 初期化フロー
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const ai = selectAi();
 
-  const typeText = (text: string) => {
-    setTypingText("");
-    setIsTyping(true);
+    const topic = selectTopic();
 
-    let i = 0;
+    const userStance = selectStance(topic);
 
-    const interval = setInterval(() => {
-      setTypingText(text.slice(0, i));
-      i++;
+    const aiStance = selectAiStance(topic, userStance);
 
-      if (i > text.length) {
-        clearInterval(interval);
-        setIsTyping(false);
+    setSelectedAI(ai);
+    setSelectedTopic(topic);
+    setStance(userStance);
+    setAiStance(aiStance);
+  }, []);
 
-        setMessages((prev) => [
-          ...prev,
-          { role: "AI", content: text },
-        ]);
-
-        setPhase("reply");
-      }
-    }, 30);
-  };
-
-  // 意見の処理
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const text = input;
-    setinput("");
-
-    // 人間側の意見
-    setMessages((prev) => [
-      ...prev,
-      { role: "あなた", content: text },
-    ]);
-
-    // AI側の意見
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
-    });
-
-    const data = await response.json();
-
-    if (data.error) {
-      console.error('API Error:', data.error);
-      alert('AIの呼び出しに失敗しました: ' + data.details);
-      return;
-    }
-
-    typeText(data.reply);
-  };
-
-  const sendTeamMessage = () => {
-    if (!input.trim()) return;
-
-    const text = input;
-    setinput("");
-
-    setTeamMessages((prev) => [
-      ...prev,
-      { role: "you", content: text },
-    ]);
-  };
-
-  const handleTeamAction = () => {
-    setShowNextRound(true);
-
-    setTimeout(() => {
-      setShowNextRound(false);
-
-      // チーム → バトルへ
-      setScreen("battle");
-      setPhase("answer");
-    }, 1200);
-  };
-
-  const handleBattleAction = async () => {
-    if (phase === "answer") {
-      sendMessage();
-      return;
-    }
-
-    // 5ラウンド目のAIの反論後にボタンを押した場合
-    if (round === 5) {
+  // ラウンド監視
+  useEffect(() => {
+    if (round === 6) {
       setScreen("judge");
-      setIsJudging(true);
-      
-      try {
-        const response = await fetch("/api/judge", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages }),
-        });
-        const data = await response.json();
-        setJudgeResult(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsJudging(false);
-      }
-      return;
+      judge();
     }
+  }, [round]);
 
-    setShowNextRound(true);
-
-    setTimeout(() => {
-      setShowNextRound(false);
-      setScreen("team");
-      setPhase("answer");
-      nextRound();
-    }, 1200);
-  };
-
-  const handleAction = () => {
-    if (screen === "team") {
-      handleTeamAction();
-    } else {
-      handleBattleAction();
-    }
-  };
-
-  const resetGame = () => {
-    setRound(1);
-    setMessages([]);
-    setTeamMessages([]);
-    setScreen("team");
-    setJudgeResult(null);
+  // introScreenを消す
+  const closeIntro = () => {
+    setShowIntro(false);
   };
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative">
-      {/* 背景 */}
       <div className="fixed inset-0 z-0">
-        <Background />
-        <div className="absolute inset-0 bg-black/40" />
+        {game.selectedTopic?.background === "court" && (
+          <CourtBackground key="court" />
+        )}
+
+        {game.selectedTopic?.background === "deathgame" && (
+          <DeathGameBackground key="deathgame" />
+        )}
+
+        {game.selectedTopic?.background === "school" && (
+          <SchoolBackground key="school" />
+        )}
+
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
-      {/* Next Round演出 */}
-      {showNextRound && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80">
-          <div className="text-5xl font-bold animate-pulse">
-            {screen === "team" ? "TEAM PHASE" : "BATTLE PHASE"}
-          </div>
-          <div className="text-xl text-white/60 mt-4">
-            第 {round} ラウンド
-          </div>
+      {showIntro && (
+        <div className="z-20 flex items-center justify-center absolute inset-0">
+          <IntroScreen
+            {...game}
+            onChangeScreen={() => setScreen("team")}
+            closeIntro={closeIntro}
+          />
         </div>
       )}
 
-      {screen === "team" ? (
-        <TeamScreen
-          round={round}
-          teamMessages={teamMessages}
-          input={input}
-          onChangeInput={setinput}
-          onSendTeamMessage={sendTeamMessage}
-          onConfirmTeamAction={handleAction}
-        />
-      ) : screen === "battle" ? (
-        <BattleScreen
-          round={round}
-          messages={messages}
-          input={input}
-          onChangeInput={setinput}
-          onSendMessage={handleAction}
-          phase={phase}
-          isTyping={isTyping}
-          typingText={typingText}
-          chatEndRef={chatEndRef}
-        />
-      ) : (
-        <JudgeScreen 
-          isLoading={isJudging} 
-          result={judgeResult} 
-          onReset={resetGame} 
+      <div className="z-10 absolute inset-0 flex items-center justify-center">
+        {screen === "team" && (
+          <TeamScreen
+            {...game}
+            onChangeScreen={() => setScreen("battle")}
+            setShowRoundScreen={setShowRoundScreen}
+          />
+        )}
+
+        {screen === "battle" && (
+          <BattleScreen
+            {...game}
+            onChangeScreen={() => setScreen("team")}
+            setShowRoundScreen={setShowRoundScreen}
+          />
+        )}
+
+        {screen === "judge" && (
+          <JudgeScreen
+            judgeResult={game.judgeResult}
+          />
+        )}
+      </div>
+
+      {showRoundScreen && screen !== "intro" && screen !== "judge" && (
+        <RoundScreen
+          {...game}
+          screen={screen}
         />
       )}
     </div>
