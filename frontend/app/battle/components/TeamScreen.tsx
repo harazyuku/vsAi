@@ -56,9 +56,9 @@ function TeamScreen({
     setShowRoundScreen(false);
 
     // 残り時間タイマースタート
-    // await startTeamTimer();
-    // stopTeamTimer();
-    // onChangeScreen();
+    await startTeamTimer();
+    stopTeamTimer();
+    onChangeScreen();
   };
 
 

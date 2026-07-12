@@ -49,7 +49,7 @@ export default function Page() {
 
   // ラウンド監視
   useEffect(() => {
-    if (round === 2) {
+    if (round === 6) {
       setScreen("judge");
       judge();
     }
