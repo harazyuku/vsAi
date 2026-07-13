@@ -21,7 +21,7 @@ function Navbar() {
         {/* <Link href="/profile">プロフィール</Link> */}
 
         <Link
-          href="https://github.com/harazyuku"
+          href="https://github.com/harazyuku/vsAi"
           target="_blank"
           rel="noopener noreferrer"
           className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20"
