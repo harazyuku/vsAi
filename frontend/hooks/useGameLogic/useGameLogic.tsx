@@ -100,17 +100,21 @@ export const useGameLogic = () => {
 
   // チームのチャット履歴を下までスクロール
   const scrollTeamToBottom = () => {
-    teamBottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  };
+  const container = teamBottomRef.current?.parentElement;
+
+  if (container) {
+    container.scrollTop = container.scrollHeight;
+  }
+};
 
   // バトルのチャット履歴を下までスクロール
   const scrollBattleToBottom = () => {
-    battleBottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  };
+  const container = battleBottomRef.current?.parentElement;
+
+  if (container) {
+    container.scrollTop = container.scrollHeight;
+  }
+};
 
   // 待つ処理
   const wait = (ms: number) =>

@@ -81,18 +81,6 @@ function TeamScreen({
 
   return (
     <div>
-      <div className="absolute top-20 right-30 w-28 h-28 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center">
-        <span className="text-xs tracking-[0.2em] text-gray-400">
-          TIME
-        </span>
-
-        <span
-          className={`text-5xl font-black leading-none 
-            `}
-        >
-          {time}
-        </span>
-      </div>
 
       <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex gap-8">
 
@@ -133,15 +121,22 @@ function TeamScreen({
               )}
             </div>
 
-            <div className="text-center">
-              <p className="text-gray-400 text-sm">ROUND</p>
-              <p className="text-5xl font-black">{round}</p>
+            <div>
+              <div className="text-center">
+                <p className="text-gray-400 text-sm">ROUND</p>
+                <p className="text-5xl font-black">{round}</p>
+              </div>
+              <div className="text-center mt-2">
+                <p className="text-gray-400 text-sm">残り</p>
+                <p className="text-3xl font-black">{time}</p>
+              </div>
             </div>
           </div>
 
 
           {/* チャット */}
-          <div className="bg-black/40 border border-white/10 rounded-2xl p-6 h-[350px] mb-8 overflow-y-auto space-y-4">
+          <div 
+          className="bg-black/40 border border-white/10 rounded-2xl p-6 h-[350px] mb-8 overflow-y-auto space-y-4">
             {teamMessages.map((m, i) => (
               <div
                 key={i}

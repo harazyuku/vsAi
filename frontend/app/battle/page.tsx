@@ -61,63 +61,53 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative">
-      <div className="fixed inset-0 z-0">
-        {game.selectedTopic?.background === "court" && (
-          <CourtBackground key="court" />
-        )}
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+  <div className="fixed inset-0 z-0">
+    {/* 背景 */}
+  </div>
 
-        {game.selectedTopic?.background === "deathgame" && (
-          <DeathGameBackground key="deathgame" />
-        )}
-
-        {game.selectedTopic?.background === "school" && (
-          <SchoolBackground key="school" />
-        )}
-
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
-
-      {showIntro && (
-        <div className="z-20 flex items-center justify-center absolute inset-0">
-          <IntroScreen
-            {...game}
-            onChangeScreen={() => setScreen("team")}
-            closeIntro={closeIntro}
-          />
-        </div>
-      )}
-
-      <div className="z-10 absolute inset-0 flex items-center justify-center">
-        {screen === "team" && (
-          <TeamScreen
-            {...game}
-            onChangeScreen={() => setScreen("battle")}
-            setShowRoundScreen={setShowRoundScreen}
-          />
-        )}
-
-        {screen === "battle" && (
-          <BattleScreen
-            {...game}
-            onChangeScreen={() => setScreen("team")}
-            setShowRoundScreen={setShowRoundScreen}
-          />
-        )}
-
-        {screen === "judge" && (
-          <JudgeScreen
-            judgeResult={game.judgeResult}
-          />
-        )}
-      </div>
-
-      {showRoundScreen && screen !== "intro" && screen !== "judge" && (
-        <RoundScreen
-          {...game}
-          screen={screen}
-        />
-      )}
+  {showIntro && (
+    <div className="absolute inset-0 z-20 flex items-center justify-center p-4 overflow-auto">
+      <IntroScreen
+        {...game}
+        onChangeScreen={() => setScreen("team")}
+        closeIntro={closeIntro}
+      />
     </div>
+  )}
+
+  <div className="absolute inset-0 z-10 flex items-center justify-center p-4 overflow-auto">
+    {screen === "team" && (
+      <div className="origin-center scale-[0.8] 2xl:scale-100">
+      <TeamScreen
+        {...game}
+        onChangeScreen={() => setScreen("battle")}
+        setShowRoundScreen={setShowRoundScreen}
+      />
+      </div>
+    )}
+
+    {screen === "battle" && (
+      <div className="origin-center scale-[0.8] 2xl:scale-100">
+      <BattleScreen
+        {...game}
+        onChangeScreen={() => setScreen("team")}
+        setShowRoundScreen={setShowRoundScreen}
+      />
+    </div>
+    )}
+
+    {screen === "judge" && (
+      <JudgeScreen judgeResult={game.judgeResult} />
+    )}
+  </div>
+
+  {showRoundScreen && screen !== "intro" && screen !== "judge" && (
+    <RoundScreen
+      {...game}
+      screen={screen}
+    />
+  )}
+</div>
   );
 }
