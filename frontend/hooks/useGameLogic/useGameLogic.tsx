@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { aiCharacters, type AICharacter } from "@/app/config/aiConfig";
-import { JudgeResult } from "@/app/battle/components/JudgeScreen";
+import { JudgeResult } from "@/app/battle/components/pc/JudgeScreen";
 import { topics, type Topic } from "@/app/config/aiConfig";
 
 export const useGameLogic = () => {

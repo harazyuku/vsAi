@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { performance } from 'perf_hooks';
-import { JudgeResult } from "@/app/battle/components/JudgeScreen";
+import { JudgeResult } from "@/app/battle/components/pc/JudgeScreen";
 
 interface Message {
   role: string;

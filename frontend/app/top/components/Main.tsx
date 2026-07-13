@@ -18,7 +18,7 @@ function Main() {
           href="/battle"
           className="rounded-2xl bg-white px-10 py-4 text-lg font-semibold text-black transition hover:scale-105 hover:opacity-90"
         >
-          今すぐ論破しに行く
+          今すぐ論破する
         </Link>
       </div>
     </div>
