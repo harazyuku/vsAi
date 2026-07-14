@@ -12,6 +12,9 @@ import RoundScreen from "./components/pc/RoundScreen";
 import MobileRoundScreen from "./components/mobile/MobileRoundScreen";
 import JudgeScreen from "./components/pc/JudgeScreen";
 import MobileJudgeScreen from "./components/mobile/MobileJudgeScreen";
+import CourtBackground from "./components/Background/CourtBackground";
+import DeathGameBackground from "./components/Background/DeathGameBackground";
+import SchoolBackground from "./components/Background/SchoolBackground";
 
 export default function Page() {
   const game = useGameLogic();
@@ -84,13 +87,26 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
 
+
       <div className="fixed inset-0 z-0">
-        {/* 背景 */}
+        {game.selectedTopic?.background === "court" && (
+          <CourtBackground key="court" />
+        )}
+
+        {game.selectedTopic?.background === "deathgame" && (
+          <DeathGameBackground key="deathgame" />
+        )}
+
+        {game.selectedTopic?.background === "school" && (
+          <SchoolBackground key="school" />
+        )}
+
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
 
       {showIntro && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center p-4 overflow-auto">
+        <div className="absolute inset-0 z-20 flex items-center justify-center overflow-auto">
 
           {isMobile ? (
             <MobileIntroScreen
