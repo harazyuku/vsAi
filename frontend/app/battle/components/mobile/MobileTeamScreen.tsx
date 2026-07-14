@@ -286,8 +286,8 @@ function TeamScreen({
                 px-4
                 py-3
                 ${m.role === "あなた"
-                      ? "bg-white text-black"
-                      : "bg-white/10 text-white ml-auto"
+                      ? "bg-blue-500/20 text-white"
+                      : "bg-red-500/20 text-white ml-auto"
                     }
               `}
                 >

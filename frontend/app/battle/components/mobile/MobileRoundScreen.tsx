@@ -28,14 +28,16 @@ function RoundScreen({
 
   return (
     <div className={`absolute inset-0 z-15 ${isClosing ? "quick-fade-out" : ""}`}>
-      <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-black px-6">
         <div className="animate-round-in text-center">
-          <h1 className="text-8xl font-black">
+          <h1 className="text-[clamp(3rem,10vw,8rem)] font-black tracking-wider leading-none">
             ROUND {round}
           </h1>
 
-          <p className="mt-6 text-4xl font-bold text-white/70">
-            {screen === "team" ? "作戦会議" : "そのボキャブラリーで相手を泣かせてやれ"}
+          <p className="mt-4 md:mt-6 text-[clamp(1rem,3vw,2rem)] font-semibold text-white/70 leading-relaxed">
+            {screen === "team"
+              ? "作戦会議"
+              : "そのボキャブラリーで相手を泣かせてやれ"}
           </p>
         </div>
       </div>
