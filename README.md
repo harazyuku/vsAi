@@ -2,7 +2,7 @@
 
 AIとレスバするゲームアプリのプロジェクトです。
 
-フロントエンド（Next.js）とバックエンド（Node.js + Express）のモノリポ構成になっています。
+フロントエンド（Next.js）とバックエンド（Node.js + Express）のモノリポ構成になっています。(現段階の実装はフロントのみ)
 
 ## デザイン
 https://docs.google.com/document/d/1iwaiANFI9ax-W4Q2P_rSi5gSAEOs5NEZ5Vg_V0UdCD0/edit?tab=t.jcckvee3uqf#heading=h.avx7a2ps2usm
