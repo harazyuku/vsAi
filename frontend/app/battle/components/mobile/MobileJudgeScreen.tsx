@@ -18,9 +18,16 @@ interface JudgeScreenProps {
   stance: string;
   aiStance: string;
   isCourt: boolean;
+  resultBackground?: string;
 }
 
-function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProps) {
+function JudgeScreen({
+  judgeResult,
+  stance,
+  aiStance,
+  isCourt,
+  resultBackground,
+}: JudgeScreenProps) {
   const [showReveal, setShowReveal] = useState(true);
   console.log("JudgeScreen - judgeResult received:", judgeResult);
 
@@ -78,11 +85,13 @@ function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProp
   const plaintiffWon =
     (stance === "原告" && isUserWinner) ||
     (aiStance === "原告" && !isUserWinner);
-  const verdictBackground = isCourt
-    ? plaintiffWon
-      ? "/back-images/syouso.PNG"
-      : "/back-images/haiso.PNG"
-    : undefined;
+  const verdictBackground =
+    resultBackground ??
+    (isCourt
+      ? plaintiffWon
+        ? "/back-images/syouso.PNG"
+        : "/back-images/haiso.PNG"
+      : undefined);
 
 
   return (
@@ -103,7 +112,6 @@ function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProp
         w-full
         max-w-[900px]
         min-h-screen
-        md:h-[850px]
         flex
         flex-col
         gap-6
@@ -113,7 +121,6 @@ function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProp
         bg-black/45
         p-4
         md:p-8
-        overflow-y-auto
       "
     >
 

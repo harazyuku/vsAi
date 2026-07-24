@@ -18,9 +18,16 @@ interface JudgeScreenProps {
   stance: string;
   aiStance: string;
   isCourt: boolean;
+  resultBackground?: string;
 }
 
-function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProps) {
+function JudgeScreen({
+  judgeResult,
+  stance,
+  aiStance,
+  isCourt,
+  resultBackground,
+}: JudgeScreenProps) {
   const [showReveal, setShowReveal] = useState(true);
   console.log("JudgeScreen - judgeResult received:", judgeResult);
 
@@ -64,11 +71,13 @@ function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProp
   const plaintiffWon =
     (stance === "原告" && isUserWinner) ||
     (aiStance === "原告" && !isUserWinner);
-  const verdictBackground = isCourt
-    ? plaintiffWon
-      ? "/back-images/syouso.PNG"
-      : "/back-images/haiso.PNG"
-    : undefined;
+  const verdictBackground =
+    resultBackground ??
+    (isCourt
+      ? plaintiffWon
+        ? "/back-images/syouso.PNG"
+        : "/back-images/haiso.PNG"
+      : undefined);
 
   return (
     <>
@@ -82,7 +91,7 @@ function JudgeScreen({ judgeResult, stance, aiStance, isCourt }: JudgeScreenProp
       />
     )}
     <div
-      className="relative z-10 w-[900px] h-[850px] flex flex-col justify-between rounded-2xl border border-white/10 bg-black/45 p-8 overflow-y-auto"
+      className="relative z-10 my-4 flex w-[900px] flex-col justify-between gap-6 rounded-2xl border border-white/10 bg-black/45 p-8"
     >
 
       {/* ヘッダー */}

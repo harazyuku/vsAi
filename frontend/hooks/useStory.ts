@@ -37,6 +37,12 @@ export function useStory({
       topic: selectedTopic.topic,
       stance,
       aiStance,
+      opponentStoryLines:
+        selectedTopic.background === "court"
+          ? selectedAI.storyDialogue?.court
+          : selectedTopic.background === "deathgame"
+            ? selectedAI.storyDialogue?.deathgame
+            : selectedAI.storyDialogue?.school,
     };
 
     switch (selectedTopic.background) {
@@ -137,17 +143,101 @@ export function useStory({
         flipX: false,
         isAICharacter: true,
       },
+      player: {
+        id: "player",
+        src: "/images/chara-icons/player.PNG",
+        alt: "あなた",
+        position: "left",
+        placement: "left",
+        size: "normal",
+        flipX: false,
+        isAICharacter: false,
+      },
+      heroine: {
+        id: "heroine",
+        src: "/images/chara-icons/heroine.PNG",
+        alt: "参加者たちを支えてきた少女",
+        position: "left",
+        placement: "left",
+        size: "portrait",
+        flipX: false,
+        isAICharacter: false,
+      },
+      gamemaster: {
+        id: "gamemaster",
+        src: "/images/chara-icons/game-master.PNG",
+        alt: "ゲームマスター",
+        position: "right",
+        placement: "center",
+        size: "monitor",
+        flipX: false,
+        isAICharacter: false,
+      },
+      gaki1: {
+        id: "gaki1",
+        src: "/images/chara-icons/gaki1.PNG",
+        alt: "佐藤くん",
+        position: "left",
+        placement: "left",
+        size: "student",
+        flipX: false,
+        isAICharacter: false,
+      },
+      gaki2: {
+        id: "gaki2",
+        src: "/images/chara-icons/gaki2.PNG",
+        alt: "クラスメイト",
+        position: "left",
+        placement: "left",
+        size: "student",
+        flipX: false,
+        isAICharacter: false,
+      },
+      gaki3: {
+        id: "gaki3",
+        src: "/images/chara-icons/gaki3.PNG",
+        alt: "クラスメイト",
+        position: "right",
+        placement: "right",
+        size: "student",
+        flipX: false,
+        isAICharacter: false,
+      },
+      gaki4: {
+        id: "gaki4",
+        src: "/images/chara-icons/gaki4.PNG",
+        alt: "手を挙げた女子生徒",
+        position: "left",
+        placement: "left",
+        size: "student",
+        flipX: false,
+        isAICharacter: false,
+      },
+      sato: {
+        id: "sato",
+        src: "/images/chara-icons/sato.PNG",
+        alt: "佐藤くん",
+        position: "left",
+        placement: "left",
+        size: "student",
+        flipX: false,
+        isAICharacter: false,
+      },
     };
 
     const visibleActors = currentLine.visibleActors ?? [];
     const showsClaudeAndPlaintiff =
       visibleActors.includes("claude") && visibleActors.includes("plaintiff");
+    const showsPlayerAndHeroine =
+      visibleActors.includes("player") && visibleActors.includes("heroine");
 
     return visibleActors.map((actorId) => ({
       ...actors[actorId],
       placement:
         showsClaudeAndPlaintiff && actorId === "plaintiff"
           ? "center-left"
+          : showsPlayerAndHeroine && actorId === "heroine"
+            ? "right"
           : actors[actorId].placement,
       isFocused: currentLine.focusActor === actorId,
     }));

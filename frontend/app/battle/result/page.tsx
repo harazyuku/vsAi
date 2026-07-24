@@ -54,11 +54,16 @@ export default function BattleResultPage() {
   const plaintiffWon =
     (result.stance === "原告" && isUserWinner) ||
     (result.aiStance === "原告" && !isUserWinner);
+  const winningStance = isUserWinner ? result.stance : result.aiStance;
   const verdictBackground =
     result.topicBackground === "court"
       ? plaintiffWon
         ? "/back-images/syouso.PNG"
         : "/back-images/haiso.PNG"
+      : result.topicBackground === "deathgame"
+        ? winningStance === "生贄賛成"
+          ? "/back-images/ikenie-yes.jpg"
+          : "/back-images/ikenie-no.PNG"
       : null;
 
   const judgeProps = {
@@ -66,10 +71,11 @@ export default function BattleResultPage() {
     stance: result.stance,
     aiStance: result.aiStance,
     isCourt: result.topicBackground === "court",
+    resultBackground: verdictBackground ?? undefined,
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-black text-white">
+    <main className="relative min-h-screen bg-black text-white">
       {verdictBackground && (
         <Image
           src={verdictBackground}
@@ -82,7 +88,7 @@ export default function BattleResultPage() {
       )}
       <div className="fixed inset-0 bg-black/50" />
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center overflow-auto p-0 md:p-4">
+      <div className="relative z-10 flex min-h-screen items-center justify-center p-0 md:p-4">
         {isMobile ? (
           <MobileJudgeScreen {...judgeProps} />
         ) : (

@@ -4,6 +4,7 @@ export function createCourtStory({
   topic,
   stance,
   aiStance,
+  opponentStoryLines,
 }: StoryContext): StoryLine[] {
   const playerActor = stance === "原告" ? "plaintiff" : "defendant";
   const enemyActor = aiStance === "原告" ? "plaintiff" : "defendant";
@@ -113,7 +114,9 @@ export function createCourtStory({
     {
       speaker: "対戦相手",
       side: "enemy",
-      text: `私が立つのは「${aiStance}」側だ。証拠と論理に従い、その正当性を証明する。`,
+      text:
+        opponentStoryLines?.[aiStance] ??
+        `私が立つのは「${aiStance}」側だ。証拠と論理に従い、その正当性を証明する。`,
       visibleActors: ["plaintiff", "defendant"],
       focusActor: enemyActor,
       revealStance: "enemy",

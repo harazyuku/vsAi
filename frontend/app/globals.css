@@ -541,6 +541,144 @@ body {
   animation: storyStanceIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.story-heroine-tremble {
+  animation: storyHeroineTremble 2.4s ease-in-out infinite;
+}
+
+.story-monitor-in {
+  animation: storyMonitorIn 0.42s steps(2, end) both;
+}
+
+.story-scene-in {
+  animation: storySceneIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes storySceneIn {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.story-monitor-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 78% 88% at 50% 44%,
+    #000 58%,
+    rgba(0, 0, 0, 0.92) 72%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 78% 88% at 50% 44%,
+    #000 58%,
+    rgba(0, 0, 0, 0.92) 72%,
+    transparent 100%
+  );
+}
+
+.story-portrait-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 72% 82% at 50% 44%,
+    #000 48%,
+    rgba(0, 0, 0, 0.92) 62%,
+    transparent 88%
+  );
+  mask-image: radial-gradient(
+    ellipse 72% 82% at 50% 44%,
+    #000 48%,
+    rgba(0, 0, 0, 0.92) 62%,
+    transparent 88%
+  );
+}
+
+.story-student-mask {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 90%,
+    rgba(0, 0, 0, 0.55) 96%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 90%,
+    rgba(0, 0, 0, 0.55) 96%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.story-sato-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 72% 74% at 52% 47%,
+    #000 52%,
+    rgba(0, 0, 0, 0.8) 68%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 72% 74% at 52% 47%,
+    #000 52%,
+    rgba(0, 0, 0, 0.8) 68%,
+    transparent 100%
+  );
+}
+
+@keyframes storyHeroineTremble {
+  0%, 100% {
+    transform: translateX(0);
+  }
+
+  48% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-2px);
+  }
+
+  52% {
+    transform: translateX(2px);
+  }
+
+  54% {
+    transform: translateX(-1px);
+  }
+
+  56% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes storyMonitorIn {
+  0% {
+    opacity: 0;
+    filter: brightness(3) contrast(1.8);
+    transform: scaleY(0.02);
+  }
+
+  45% {
+    opacity: 0.85;
+    transform: scaleY(1);
+  }
+
+  70% {
+    opacity: 0.35;
+    filter: brightness(1.8) contrast(1.4);
+  }
+
+  100% {
+    opacity: 1;
+    filter: brightness(0.85) contrast(1.15);
+    transform: scaleY(1);
+  }
+}
+
 @keyframes storyStanceIn {
   from {
     opacity: 0;
@@ -574,6 +712,12 @@ body {
   }
 
   .story-stance-in {
+    animation: none;
+  }
+
+  .story-heroine-tremble,
+  .story-monitor-in,
+  .story-scene-in {
     animation: none;
   }
 }

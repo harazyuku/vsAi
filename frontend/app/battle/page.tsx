@@ -142,6 +142,8 @@ export default function Page() {
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-black/50" />
+
       <div className="absolute inset-0 z-10 flex items-center justify-center p-4 overflow-auto">
 
 
