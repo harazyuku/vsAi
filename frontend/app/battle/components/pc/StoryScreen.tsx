@@ -78,7 +78,7 @@ export default function StoryScreen({
 
   return (
     <div
-      className={`relative h-full min-h-screen w-full cursor-pointer overflow-hidden bg-gradient-to-br ${backgroundClass}`}
+      className={`relative h-[100dvh] min-h-[100dvh] w-full cursor-pointer overflow-hidden bg-gradient-to-br ${backgroundClass}`}
       onClick={advanceStory}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.75)_100%)]" />
@@ -194,19 +194,19 @@ export default function StoryScreen({
       {actorViews.map((actor) => (
         <div
           key={actor.id}
-          className={`absolute inset-y-0 z-10 flex items-center justify-center transition-all duration-500 ${
+          className={`absolute z-10 flex items-center justify-center transition-all duration-500 ${
             actor.placement === "left"
-              ? "left-[-4%] w-[42%]"
+              ? "left-[-16%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:left-[-4%] min-[1100px]:h-auto min-[1100px]:w-[42%]"
               : actor.placement === "center-left"
-                ? "left-[25%] w-[38%]"
+                ? "left-[-4%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:left-[25%] min-[1100px]:h-auto min-[1100px]:w-[38%]"
                 : actor.placement === "center"
-                  ? "left-1/2 top-[8%] h-[46%] w-[38%] -translate-x-1/2"
-                : "right-[-2%] w-[52%]"
+                  ? "left-1/2 top-[6%] h-[42%] w-[86%] -translate-x-1/2 min-[1100px]:top-[8%] min-[1100px]:h-[46%] min-[1100px]:w-[38%]"
+                : "right-[-16%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:right-[-2%] min-[1100px]:h-auto min-[1100px]:w-[52%]"
           } ${
             actor.id.startsWith("gaki")
-              ? "pb-[14vh]"
+              ? "pb-[18vh] min-[1100px]:pb-[14vh]"
               : actor.id === "sato"
-                ? "pb-[7vh]"
+                ? "pb-[12vh] min-[1100px]:pb-[7vh]"
                 : ""
           } ${
             actor.isFocused
@@ -258,7 +258,7 @@ export default function StoryScreen({
 
       {revealedStances.enemy && (
         <div
-          className={`absolute top-[12%] z-20 story-stance-in ${enemyStancePosition}`}
+          className={`absolute top-[8%] z-20 story-stance-in md:top-[12%] ${enemyStancePosition}`}
         >
           <p className="text-xs font-bold tracking-[0.4em] text-red-300/70">ENEMY STANCE</p>
           <p className="mt-2 text-2xl font-black text-white md:text-4xl">{aiStance}</p>
@@ -267,16 +267,16 @@ export default function StoryScreen({
 
       {revealedStances.player && (
         <div
-          className={`absolute top-[12%] z-20 story-stance-in ${playerStancePosition}`}
+          className={`absolute top-[8%] z-20 story-stance-in md:top-[12%] ${playerStancePosition}`}
         >
           <p className="text-xs font-bold tracking-[0.4em] text-blue-300/70">YOUR STANCE</p>
           <p className="mt-2 text-2xl font-black text-white md:text-4xl">{stance}</p>
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 z-20 p-4 md:p-10">
+      <div className="absolute inset-x-0 bottom-0 z-20 p-2 sm:p-4 md:p-10">
         <div
-          className={`mx-auto max-w-6xl overflow-hidden rounded-2xl border backdrop-blur-xl transition-colors ${
+          className={`mx-auto max-w-6xl overflow-hidden rounded-xl border backdrop-blur-sm transition-colors sm:rounded-2xl md:backdrop-blur-xl ${
             isNarration
               ? "border-white/20 bg-black/75"
               : isSatoSpeaking
@@ -302,14 +302,14 @@ export default function StoryScreen({
                 : "border-blue-400/30 bg-blue-950/70"
           }`}
         >
-          <div className="border-b border-white/10 px-5 py-3 md:px-8">
-            <p className="text-sm font-black tracking-[0.2em] text-white/80">
+          <div className="border-b border-white/10 px-4 py-2 sm:px-5 sm:py-3 md:px-8">
+            <p className="text-xs font-black tracking-[0.15em] text-white/80 sm:text-sm sm:tracking-[0.2em]">
               {speakerLabel}
             </p>
           </div>
 
-          <div className="relative min-h-36 px-5 py-5 md:min-h-44 md:px-8 md:py-7">
-            <p className="w-full break-words text-base font-bold leading-8 text-white md:text-xl md:leading-9">
+          <div className="relative min-h-28 px-4 py-3 sm:min-h-36 sm:px-5 sm:py-5 md:min-h-44 md:px-8 md:py-7">
+            <p className="w-full break-words text-sm font-bold leading-6 text-white sm:text-base sm:leading-8 md:text-xl md:leading-9">
               {displayedText}
               {isTyping && <span className="ml-1 inline-block h-5 w-0.5 animate-pulse bg-white/80 align-middle" />}
             </p>

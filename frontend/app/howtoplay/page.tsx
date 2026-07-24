@@ -27,7 +27,7 @@ const slides = [
     title: "戦いの条件が決まる",
     catchphrase: "ゲーム開始時に3つの要素が決定",
     content: (
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-3 min-[480px]:gap-3">
         {[
           ["📜", "お題", "何を議論する？"],
           ["⚖️", "立場", "どちら側で戦う？"],
@@ -118,7 +118,7 @@ const slides = [
     title: "勝敗発表",
     catchphrase: "結果を振り返って、次のバトルに活かそう",
     content: (
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 min-[420px]:gap-3">
         {[
           ["🏆", "勝者"],
           ["📊", "両者のスコア"],
@@ -145,7 +145,7 @@ function HowToPlayContent() {
   const destination = startsGame ? "/battle/story" : "/top";
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-black p-4 text-white">
+    <div className="relative flex min-h-[100dvh] items-center justify-center bg-black p-3 pt-20 text-white sm:p-4">
       {startsGame && (
         <button
           type="button"
@@ -156,7 +156,7 @@ function HowToPlayContent() {
         </button>
       )}
 
-      <div className="w-full max-w-[800px] rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:p-10">
+      <div className="w-full max-w-[800px] rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:rounded-3xl sm:p-6 md:p-10">
         <div className="mb-7 flex gap-2">
           {slides.map((slide, index) => (
             <div

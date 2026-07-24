@@ -34,7 +34,7 @@ export default function BattleInputScreen({
 
   return createPortal(
     <div className="battle-input-screen-in fixed inset-0 z-[60] flex items-center bg-black/70 text-white">
-      <section className="battle-input-panel-in relative h-[340px] w-full overflow-hidden border-y border-blue-400/40 bg-[#061229] shadow-[0_0_80px_rgba(37,99,235,0.35)] md:h-[360px]">
+      <section className="battle-input-panel-in relative h-[min(400px,72dvh)] min-h-[320px] w-full overflow-hidden border-y border-blue-400/40 bg-[#061229] shadow-[0_0_80px_rgba(37,99,235,0.35)] md:h-[360px]">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
         <div className="absolute -left-20 top-0 h-full w-80 -skew-x-12 bg-blue-600/10" />
@@ -72,7 +72,7 @@ export default function BattleInputScreen({
               <p className="mb-1 text-[10px] font-black tracking-[0.5em] text-cyan-300/60 md:text-xs">
                 TEAM&apos;S FINAL ARGUMENT
               </p>
-              <h2 className="text-xl font-black text-white md:text-2xl">
+              <h2 className="mx-auto max-w-[75%] text-base font-black leading-snug text-white sm:max-w-none sm:text-xl md:text-2xl">
                 作戦会議でまとめた意見を使って、相手を論破する主張を入力してください。
               </h2>
             </div>
@@ -92,7 +92,7 @@ export default function BattleInputScreen({
                   onSubmit();
                 }
               }}
-              className={`h-40 w-full resize-none bg-transparent px-4 py-5 pr-20 text-center font-black leading-tight text-white outline-none transition-[font-size] duration-200 disabled:opacity-60 md:h-48 md:px-6 md:py-6 md:pr-24 ${inputSizeClass}`}
+              className={`h-36 w-full resize-none bg-transparent px-4 py-5 pr-16 text-center font-black leading-tight text-white outline-none transition-[font-size] duration-200 disabled:opacity-60 sm:h-40 sm:pr-20 md:h-48 md:px-6 md:py-6 md:pr-24 ${inputSizeClass}`}
             />
 
             <button

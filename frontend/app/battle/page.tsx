@@ -24,7 +24,7 @@ export default function Page() {
 
   const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
   const [showRoundScreen, setShowRoundScreen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   const {
     selectAi,
@@ -42,7 +42,7 @@ export default function Page() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1100);
     };
 
     checkMobile();
@@ -123,7 +123,7 @@ export default function Page() {
 
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-black text-white">
 
 
       <div className="fixed inset-0 z-0">
@@ -144,10 +144,10 @@ export default function Page() {
 
       <div className="pointer-events-none fixed inset-0 z-[1] bg-black/50" />
 
-      <div className="absolute inset-0 z-10 flex items-center justify-center p-4 overflow-auto">
+      <div className="absolute inset-0 z-10 flex items-center justify-center overflow-auto p-0 sm:p-4">
 
 
-        {screen === "team" && (
+        {isMobile !== null && screen === "team" && (
 
           isMobile ? (
 
@@ -159,7 +159,7 @@ export default function Page() {
 
           ) : (
 
-            <div className="origin-center scale-[0.9] 2xl:scale-100">
+            <div className="origin-center scale-[0.88] xl:scale-[0.92] 2xl:scale-100">
 
               <TeamScreen
                 {...game}
@@ -175,7 +175,7 @@ export default function Page() {
 
 
 
-        {screen === "battle" && (
+        {isMobile !== null && screen === "battle" && (
 
           isMobile ? (
 
@@ -187,7 +187,7 @@ export default function Page() {
 
           ) : (
 
-            <div className="origin-center scale-[0.9] 2xl:scale-100">
+            <div className="origin-center scale-[0.88] xl:scale-[0.92] 2xl:scale-100">
 
               <BattleScreen
                 {...game}
@@ -203,7 +203,7 @@ export default function Page() {
 
 
 
-        {screen === "judge" && (
+        {isMobile !== null && screen === "judge" && (
 
           isMobile ? (
 
@@ -232,7 +232,7 @@ export default function Page() {
 
 
 
-      {showRoundScreen && screen !== "judge" && (
+      {isMobile !== null && showRoundScreen && screen !== "judge" && (
 
         isMobile ? (
 

@@ -69,10 +69,10 @@ export default function BattleResponseScreen({
 
   const messageSizeClass =
     message.length <= 30
-      ? "text-3xl md:text-6xl"
+      ? "text-2xl min-[1100px]:text-6xl"
       : message.length <= 70
-        ? "text-2xl md:text-4xl"
-        : "text-xl md:text-3xl";
+        ? "text-xl min-[1100px]:text-4xl"
+        : "text-lg min-[1100px]:text-3xl";
 
   return createPortal(
     <div className={`fixed inset-0 z-[70] overflow-hidden text-white ${
@@ -95,34 +95,34 @@ export default function BattleResponseScreen({
           <div className="battle-response-slash absolute left-[-20%] top-[45%] h-3 w-[140%] rotate-6 bg-gradient-to-b from-white via-red-300 to-red-500" />
           <div className="battle-response-slash-secondary absolute left-[-20%] top-[56%] h-1.5 w-[140%] -rotate-3 bg-gradient-to-b from-red-200 to-red-600" />
 
-          <div className="battle-response-copy absolute left-[4%] top-1/2 z-20 w-[58%] -translate-y-1/2">
+          <div className="battle-response-copy absolute inset-x-4 bottom-[14%] z-20 min-[1100px]:left-[4%] min-[1100px]:right-auto min-[1100px]:top-1/2 min-[1100px]:bottom-auto min-[1100px]:w-[58%] min-[1100px]:-translate-y-1/2">
             <p className="mb-3 text-xs font-black tracking-[0.45em] text-red-300/70">COUNTER ARGUMENT</p>
-            <div className="-skew-x-3 border-y-2 border-red-400/60 bg-red-950/90 px-7 py-9 md:px-12 md:py-12">
+            <div className="-skew-x-2 border-y-2 border-red-400/60 bg-red-950/90 px-5 py-6 min-[1100px]:-skew-x-3 min-[1100px]:px-12 min-[1100px]:py-12">
               <p className={`skew-x-3 break-words font-black leading-tight ${messageSizeClass}`}>
                 「{message}」
               </p>
             </div>
           </div>
 
-          <div className="battle-response-enemy absolute inset-y-0 right-[-3%] z-10 flex w-[45%] items-center justify-center">
+          <div className="battle-response-enemy absolute inset-x-0 top-[2%] z-10 flex h-[44%] items-center justify-center min-[1100px]:inset-y-0 min-[1100px]:left-auto min-[1100px]:right-[-3%] min-[1100px]:h-auto min-[1100px]:w-[45%]">
             <div className="absolute h-[38vw] w-[38vw] rounded-full border border-red-400/25 bg-[radial-gradient(circle,rgba(239,68,68,0.18),rgba(239,68,68,0.04)_55%,transparent_72%)]" />
             <div className="relative text-center">
               <img
                 src={aiIcon}
                 alt={aiName}
-                className="mx-auto aspect-square max-h-[48vh] max-w-[75%] rounded-full border-4 border-red-300/30 bg-white object-cover shadow-2xl"
+                className="mx-auto aspect-square max-h-[34vh] max-w-[58%] rounded-full border-4 border-red-300/30 bg-white object-cover shadow-2xl min-[1100px]:max-h-[48vh] min-[1100px]:max-w-[75%]"
               />
               <p className="mt-4 text-lg font-black tracking-wider text-red-100 md:text-2xl">{aiName}</p>
             </div>
           </div>
 
-          <div className="battle-response-impact pointer-events-none absolute left-[60%] top-1/2 z-30 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-red-100" />
+          <div className="battle-response-impact pointer-events-none absolute left-1/2 top-[44%] z-30 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-red-100 min-[1100px]:left-[60%] min-[1100px]:top-1/2 min-[1100px]:h-20 min-[1100px]:w-20" />
 
           <button
             type="button"
             disabled={isClosing}
             onClick={closeResponse}
-            className="animate-in fade-in slide-in-from-bottom-3 absolute bottom-6 right-6 z-30 flex items-center gap-3 rounded-full border border-red-300/30 bg-red-600/90 px-6 py-3 font-black transition duration-300 hover:-translate-y-1 hover:bg-red-500 active:translate-y-0 md:bottom-10 md:right-10 md:px-8 md:py-4 md:text-lg"
+            className="animate-in fade-in slide-in-from-bottom-3 absolute bottom-3 right-3 z-30 flex items-center gap-3 rounded-full border border-red-300/30 bg-red-600/90 px-5 py-2.5 text-sm font-black transition duration-300 hover:-translate-y-1 hover:bg-red-500 active:translate-y-0 md:bottom-10 md:right-10 md:px-8 md:py-4 md:text-lg"
           >
             （{countdown}）確認
           </button>
