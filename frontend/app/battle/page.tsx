@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useGameLogic } from "@/hooks/useGameLogic/useGameLogic";
-import IntroScreen from "./components/pc/IntroScreen";
-import MobileIntroScreen from "./components/mobile/MobileIntroScreen";
 import TeamScreen from "./components/pc/TeamScreen";
 import MobileTeamScreen from "./components/mobile/MobileTeamScreen";
 import BattleScreen from "./components/pc/BattleScreen";
@@ -15,14 +14,17 @@ import MobileJudgeScreen from "./components/mobile/MobileJudgeScreen";
 import CourtBackground from "./components/Background/CourtBackground";
 import DeathGameBackground from "./components/Background/DeathGameBackground";
 import SchoolBackground from "./components/Background/SchoolBackground";
+import { loadBattleSession } from "@/lib/battleSession";
+import { saveBattleResultSession } from "@/lib/battleResultSession";
 
 export default function Page() {
   const game = useGameLogic();
+  const router = useRouter();
+  const hasStartedJudgeRef = useRef(false);
 
-  const [screen, setScreen] = useState<"intro" | "team" | "battle" | "judge">("intro");
-  const [showIntro, setShowIntro] = useState(true);
+  const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
   const [showRoundScreen, setShowRoundScreen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   const {
     selectAi,
@@ -40,7 +42,7 @@ export default function Page() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1100);
     };
 
     checkMobile();
@@ -55,6 +57,16 @@ export default function Page() {
 
   // 初期化フロー
   useEffect(() => {
+    const savedSession = loadBattleSession();
+
+    if (savedSession) {
+      setSelectedAI(savedSession.selectedAI);
+      setSelectedTopic(savedSession.selectedTopic);
+      setStance(savedSession.stance);
+      setAiStance(savedSession.aiStance);
+      return;
+    }
+
     const ai = selectAi();
 
     const topic = selectTopic();
@@ -72,20 +84,46 @@ export default function Page() {
 
   // ラウンド監視
   useEffect(() => {
-    if (round === 6) {
-      setScreen("judge");
-      judge();
-    }
-  }, [round]);
+    if (
+      round !== 6 ||
+      hasStartedJudgeRef.current ||
+      !game.selectedTopic
+    ) return;
 
+    hasStartedJudgeRef.current = true;
+    setScreen("judge");
 
-  const closeIntro = () => {
-    setShowIntro(false);
-  };
+    const finishBattle = async () => {
+      try {
+        const result = await judge();
+
+        saveBattleResultSession({
+          judgeResult: result,
+          stance: game.stance,
+          aiStance: game.aiStance,
+          topicBackground: game.selectedTopic!.background,
+        });
+
+        router.replace("/battle/result");
+      } catch (error) {
+        console.error("ジャッジに失敗しました:", error);
+        hasStartedJudgeRef.current = false;
+      }
+    };
+
+    void finishBattle();
+  }, [
+    round,
+    judge,
+    router,
+    game.stance,
+    game.aiStance,
+    game.selectedTopic,
+  ]);
 
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-black text-white">
 
 
       <div className="fixed inset-0 z-0">
@@ -104,33 +142,12 @@ export default function Page() {
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-black/50" />
 
-      {showIntro && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center overflow-auto">
-
-          {isMobile ? (
-            <MobileIntroScreen
-              {...game}
-              onChangeScreen={() => setScreen("team")}
-              closeIntro={closeIntro}
-            />
-          ) : (
-            <IntroScreen
-              {...game}
-              onChangeScreen={() => setScreen("team")}
-              closeIntro={closeIntro}
-            />
-          )}
-
-        </div>
-      )}
+      <div className="absolute inset-0 z-10 flex items-center justify-center overflow-auto p-0 sm:p-4">
 
 
-
-      <div className="absolute inset-0 z-10 flex items-center justify-center p-4 overflow-auto">
-
-
-        {screen === "team" && (
+        {isMobile !== null && screen === "team" && (
 
           isMobile ? (
 
@@ -142,7 +159,7 @@ export default function Page() {
 
           ) : (
 
-            <div className="origin-center scale-[0.8] 2xl:scale-100">
+            <div className="origin-center scale-[0.88] xl:scale-[0.92] 2xl:scale-100">
 
               <TeamScreen
                 {...game}
@@ -158,7 +175,7 @@ export default function Page() {
 
 
 
-        {screen === "battle" && (
+        {isMobile !== null && screen === "battle" && (
 
           isMobile ? (
 
@@ -170,7 +187,7 @@ export default function Page() {
 
           ) : (
 
-            <div className="origin-center scale-[0.8] 2xl:scale-100">
+            <div className="origin-center scale-[0.88] xl:scale-[0.92] 2xl:scale-100">
 
               <BattleScreen
                 {...game}
@@ -186,18 +203,24 @@ export default function Page() {
 
 
 
-        {screen === "judge" && (
+        {isMobile !== null && screen === "judge" && (
 
           isMobile ? (
 
             <MobileJudgeScreen
               judgeResult={game.judgeResult}
+              stance={game.stance}
+              aiStance={game.aiStance}
+              isCourt={game.selectedTopic?.background === "court"}
             />
 
           ) : (
 
             <JudgeScreen
               judgeResult={game.judgeResult}
+              stance={game.stance}
+              aiStance={game.aiStance}
+              isCourt={game.selectedTopic?.background === "court"}
             />
 
           )
@@ -209,7 +232,7 @@ export default function Page() {
 
 
 
-      {showRoundScreen && screen !== "intro" && screen !== "judge" && (
+      {isMobile !== null && showRoundScreen && screen !== "judge" && (
 
         isMobile ? (
 
@@ -226,7 +249,6 @@ export default function Page() {
           />
 
         )
-
       )}
 
 

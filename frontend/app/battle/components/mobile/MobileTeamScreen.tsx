@@ -82,17 +82,18 @@ function TeamScreen({
 
   return (
 
-    <div className="w-full h-screen overflow-hidden bg-black/20 p-4">
+    <div className="h-[100dvh] w-full overflow-hidden bg-black/20 p-2 sm:p-4">
 
       <div
         className="
       w-full
       h-full
-      rounded-3xl
+      rounded-2xl
+      sm:rounded-3xl
       border border-white/10
-      bg-white/5
-      backdrop-blur-xl
-      p-4
+      bg-black/45
+      p-3
+      sm:p-4
       flex
       flex-col
       gap-4
@@ -101,9 +102,9 @@ function TeamScreen({
       >
 
         {/* ヘッダー */}
-        <div className="flex justify-between items-center shrink-0">
+        <div className="flex shrink-0 items-start justify-between gap-3">
 
-          <div>
+          <div className="min-w-0 flex-1">
 
             <p className="text-sm text-gray-400">
               あなたは
@@ -114,7 +115,7 @@ function TeamScreen({
             </p>
 
             {selectedTopic && (
-              <h1 className="text-lg font-bold mt-1">
+              <h1 className="line-clamp-3 break-words text-base font-bold leading-snug sm:text-lg">
                 {selectedTopic.topic}
               </h1>
             )}
@@ -122,7 +123,7 @@ function TeamScreen({
           </div>
 
 
-          <div className="text-center">
+          <div className="shrink-0 text-center">
 
             <p className="text-xs text-gray-400">
               ROUND
@@ -332,11 +333,13 @@ function TeamScreen({
             placeholder="チームの方針をまとめる..."
             className="
           w-full
-          h-24
+          h-20
+          sm:h-24
           rounded-2xl
           bg-black/40
           border border-white/10
-          p-4
+          p-3
+          sm:p-4
           text-sm
           text-white
           resize-none
@@ -352,9 +355,10 @@ function TeamScreen({
                 setInput("");
               }}
               className="
-            py-4
-            rounded-xl
-            bg-white/10
+            rounded-xl bg-white/10 py-3 sm:py-4
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg hover:shadow-blue-500/20
+            active:translate-y-0
           "
             >
               送信
@@ -367,11 +371,10 @@ function TeamScreen({
                 scrollTeamToBottom();
               }}
               className="
-            py-4
-            rounded-xl
-            bg-white
-            text-black
-            font-bold
+            rounded-xl bg-white py-3 font-bold text-black sm:py-4
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-gray-100 hover:shadow-lg hover:shadow-white/20
+            active:translate-y-0
           "
             >
               確定

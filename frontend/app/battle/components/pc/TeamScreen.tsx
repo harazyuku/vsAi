@@ -82,19 +82,19 @@ function TeamScreen({
   return (
     <div>
 
-      <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 flex gap-8">
+      <div className="relative z-10 w-[1200px] min-h-[850px] rounded-3xl border border-white/10 bg-black/45 p-8 flex gap-8">
 
         {/* バトル履歴 */}
         <div className="w-[300px] border-r border-white/10 pr-8">
-          <h3 className="text-sm font-bold text-gray-400 mb-4">バトル履歴</h3>
+          <h3 className="text-base font-bold text-gray-300 mb-4">バトル履歴</h3>
           <div className="space-y-3 h-[700px] overflow-y-auto">
             {battleMessages.length === 0 ? (
-              <p className="text-white/50 text-sm">ここにバトル画面の履歴が表示されます...</p>
+              <p className="text-white/50 text-base">ここにバトル画面の履歴が表示されます...</p>
             ) : (
               battleMessages.map((m, i) => (
                 <div
                   key={i}
-                  className={`p-3 rounded-xl text-sm ${m.role === "あなた" ? "bg-black/40" : "bg-black/60"
+                  className={`p-3 rounded-xl text-base leading-relaxed ${m.role === "あなた" ? "bg-black/40" : "bg-black/60"
                     }`}
                 >
                   <span className={`${m.role === "あなた" ? "text-blue-400" : "text-blue-200"} font-bold block mb-1`}>
@@ -113,7 +113,7 @@ function TeamScreen({
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl text-gray-400">あなたは『<span>{stance}</span>』派です</h1>
+              <h1 className="text-xl text-gray-400">あなたは<span className='text-blue-500'>『{stance}』</span>派です</h1>
               {selectedTopic && (
                 <h1 className="text-2xl font-bold">
                   {selectedTopic.topic}
@@ -144,12 +144,12 @@ function TeamScreen({
                   }`}
               >
                 <div
-                  className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm ${m.role === "あなた"
+                  className={`max-w-[70%] px-4 py-3 rounded-2xl text-base leading-relaxed ${m.role === "あなた"
                     ? "bg-white text-black rounded-br-none"
                     : "bg-white/10 text-white rounded-bl-none"
                     }`}
                 >
-                  <p className="text-xs mb-1">
+                  <p className="text-sm mb-1 opacity-70">
                     {m.role}
                   </p>
 
@@ -166,7 +166,7 @@ function TeamScreen({
           {/* 入力 */}
           <div>
             <textarea
-              className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-sm text-white"
+              className="w-full h-32 rounded-2xl bg-black/40 border border-white/10 p-6 text-base text-white"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="チームの方針をまとめる..."
@@ -174,23 +174,23 @@ function TeamScreen({
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <button
-                className="bg-white/10 py-4 rounded-xl"
+                className="rounded-xl bg-blue-500/30 py-4 transition-all duration-200 hover:-translate-y-1 hover:bg-blue-500/40 hover:shadow-lg hover:shadow-blue-500/20 active:translate-y-0"
                 onClick={() => {
                   handleSendMessage(input);
                   setInput("");
                 }}
               >
-                送信
+                チームに送信
               </button>
 
               <button
-                className="bg-white text-black py-4 rounded-xl"
+                className="rounded-xl bg-red-500/30 py-4 transition-all duration-200 hover:-translate-y-1 hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20 active:translate-y-0"
                 onClick={() => {
                   onChangeScreen();
                   scrollTeamToBottom();
                 }}
               >
-                確定
+                バトルフェーズへ
               </button>
             </div>
           </div>

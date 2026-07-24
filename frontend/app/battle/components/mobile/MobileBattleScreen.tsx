@@ -2,7 +2,10 @@
 import { useGameLogic } from '@/hooks/useGameLogic/useGameLogic';
 import { useTimer } from '@/hooks/useTimer';
 import React, { useEffect, useRef, useState } from 'react'
-import { TypeAnimation } from "react-type-animation";
+import BattleInputScreen from "../BattleInputScreen";
+import BattleAttackScreen from "../BattleAttackScreen";
+import BattleResponseScreen from "../BattleResponseScreen";
+import BattleCompactInput from "../BattleCompactInput";
 
 type Props = ReturnType<typeof useGameLogic> & {
   onChangeScreen: () => void;
@@ -29,8 +32,6 @@ function BattleScreen({
   createBattlePrompt,
   sendAI,
   selectedAI,
-  typedMessageIds,
-  setTypedMessageIds,
 
   nextRound,
   round,
@@ -43,25 +44,37 @@ function BattleScreen({
   const inputRef = useRef("");
 
   const [isAITyping, setIsAITyping] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showInputScreen, setShowInputScreen] = useState(false);
+  const [attackMessage, setAttackMessage] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const responseAddedRef = useRef(false);
   const [historyTab, setHistoryTab] = useState<"team" | "battle">("battle");
 
   // 自分の発言〜aiが発言し画面に表示までのフロー
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
+    setShowInputScreen(false);
+    setHasSubmitted(true);
+    setAttackMessage(message);
+    responseAddedRef.current = false;
     setInput("");
     inputRef.current = "";
     stopBattleTimer();
     setIsAITyping(true);
-    setShowConfirm(false);
 
     sendBattleMessage(message);
 
     const prompt = createBattlePrompt(message);
 
-    const aiResponse = await sendAI(prompt);
+    try {
+      const aiResponse = await sendAI(prompt);
 
-    sendAiBattleMessage(aiResponse);
+      setResponseMessage(aiResponse);
+    } catch {
+      const fallbackResponse = "回答の生成に失敗した。だが、この勝負はまだ終わっていない。";
+      setResponseMessage(fallbackResponse);
+    }
   };
 
   // フロー
@@ -69,6 +82,7 @@ function BattleScreen({
    setShowRoundScreen(true);
     await wait(2200);
     setShowRoundScreen(false);
+    setShowInputScreen(true);
 
     // 残り時間タイマースタート
     await startBattleTimer();
@@ -97,28 +111,64 @@ function BattleScreen({
   }, [battleMessages]);
 
   return (
-   <div className="w-full h-screen overflow-hidden bg-black/20 p-4">
+   <div className="h-[100dvh] w-full overflow-hidden bg-black/20 p-2 sm:p-4">
+  {showInputScreen && (
+    <BattleInputScreen
+      value={input}
+      time={time}
+      disabled={isAITyping}
+      onChange={(value) => {
+        setInput(value);
+        inputRef.current = value;
+      }}
+      onSubmit={() => handleSendMessage(input)}
+      onViewHistory={() => setShowInputScreen(false)}
+    />
+  )}
+  {attackMessage && (
+    <BattleAttackScreen
+      message={attackMessage}
+      onComplete={() => setAttackMessage("")}
+    />
+  )}
+  {!attackMessage && isAITyping && selectedAI && (
+    <BattleResponseScreen
+      aiName={selectedAI.name}
+      aiIcon={selectedAI.icon}
+      message={responseMessage}
+      onReveal={() => {
+        if (responseAddedRef.current || !responseMessage) return;
+        responseAddedRef.current = true;
+        sendAiBattleMessage(responseMessage);
+      }}
+      onConfirm={() => {
+        setResponseMessage("");
+        setIsAITyping(false);
+      }}
+    />
+  )}
 
   <div
-    className="
+    className={`
       w-full
       h-full
-      rounded-3xl
+      rounded-2xl
+      sm:rounded-3xl
       border border-white/10
-      bg-white/5
-      backdrop-blur-xl
-      p-4
+      bg-black/45
+      p-3
+      sm:p-4
       flex
       flex-col
       gap-4
       overflow-hidden
-    "
+    `}
   >
 
     {/* ヘッダー */}
-    <div className="flex justify-between shrink-0">
+    <div className="flex shrink-0 items-start justify-between gap-3">
 
-      <div>
+      <div className="min-w-0 flex-1">
         <p className="text-sm text-gray-400">
           あなたは
           <span className="text-white font-bold">
@@ -127,13 +177,13 @@ function BattleScreen({
           派
         </p>
 
-        <h1 className="text-lg font-bold">
+        <h1 className="line-clamp-3 break-words text-base font-bold leading-snug sm:text-lg">
           {selectedTopic?.topic}
         </h1>
       </div>
 
 
-      <div className="text-center">
+      <div className="shrink-0 text-center">
         <p className="text-xs text-gray-400">
           ROUND
         </p>
@@ -142,13 +192,6 @@ function BattleScreen({
           {round}
         </p>
 
-        <p className="text-xs text-gray-400">
-          残り
-        </p>
-
-        <p className="text-xl font-black">
-          {time}
-        </p>
       </div>
 
     </div>
@@ -247,13 +290,7 @@ function BattleScreen({
 
 
       {historyTab==="battle" && (
-        battleMessages.map((m,i)=>{
-
-          const isTyped =
-            typedMessageIds.includes(i);
-
-
-          return (
+        battleMessages.map((m,i)=>(
             <div
               key={i}
               className={`
@@ -272,35 +309,9 @@ function BattleScreen({
                 {m.role}
               </p>
 
-
-              {
-                m.role==="敵AI" && !isTyped
-                ?
-                <TypeAnimation
-                  sequence={[
-                    m.text,
-                    ()=>{
-                      setTypedMessageIds(prev=>[
-                        ...prev,
-                        i
-                      ]);
-
-                      setIsAITyping(false);
-                      setShowConfirm(true);
-                    }
-                  ]}
-                />
-                :
-                <p>
-                  {m.text}
-                </p>
-              }
-
-
+              <p>{m.text}</p>
             </div>
-          )
-
-        })
+        ))
       )}
 
 
@@ -315,52 +326,42 @@ function BattleScreen({
 
     {/* 入力 */}
     <div className="shrink-0">
-
-      <textarea
-        value={input}
-        onChange={(e)=>{
-          setInput(e.target.value);
-          inputRef.current=e.target.value;
-        }}
-        placeholder="相手の主張に反論しよう..."
-        className="
-          w-full
-          h-24
-          rounded-2xl
-          bg-black/40
-          p-4
-          resize-none
-        "
-      />
-
-
-      <button
-        onClick={()=>{
-          if(showConfirm){
+      {!hasSubmitted ? (
+        <BattleCompactInput
+          value={input}
+          time={time}
+          disabled={isAITyping}
+          onChange={(value) => {
+            setInput(value);
+            inputRef.current = value;
+          }}
+          onSubmit={() => handleSendMessage(input)}
+          onExpand={() => setShowInputScreen(true)}
+        />
+      ) : (
+        <button
+          onClick={()=>{
             onChangeScreen();
             nextRound();
-          }else{
-            handleSendMessage(input);
-          }
-        }}
-        disabled={isAITyping}
-        className="
-          w-full
-          mt-3
-          py-4
-          rounded-xl
-          bg-white
-          text-black
-          font-bold
-        "
-      >
-
-        {showConfirm
-          ? "確定"
-          : "これで論破する"
-        }
-
-      </button>
+          }}
+          disabled={isAITyping}
+          className="
+            w-full
+            mt-3
+            py-4
+            rounded-xl
+            bg-blue-500/30
+            text-white
+            font-bold
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-blue-500/40 hover:shadow-lg hover:shadow-blue-500/20
+            active:translate-y-0
+            disabled:opacity-50
+          "
+        >
+          次のラウンドへ
+        </button>
+      )}
 
     </div>
 
