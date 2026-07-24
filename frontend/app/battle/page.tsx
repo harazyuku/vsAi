@@ -85,7 +85,7 @@ export default function Page() {
   // ラウンド監視
   useEffect(() => {
     if (
-      round !== 2 ||
+      round !== 6 ||
       hasStartedJudgeRef.current ||
       !game.selectedTopic
     ) return;
