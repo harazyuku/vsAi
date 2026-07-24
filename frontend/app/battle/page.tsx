@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useGameLogic } from "@/hooks/useGameLogic/useGameLogic";
 import TeamScreen from "./components/pc/TeamScreen";
 import MobileTeamScreen from "./components/mobile/MobileTeamScreen";
@@ -14,9 +15,12 @@ import CourtBackground from "./components/Background/CourtBackground";
 import DeathGameBackground from "./components/Background/DeathGameBackground";
 import SchoolBackground from "./components/Background/SchoolBackground";
 import { loadBattleSession } from "@/lib/battleSession";
+import { saveBattleResultSession } from "@/lib/battleResultSession";
 
 export default function Page() {
   const game = useGameLogic();
+  const router = useRouter();
+  const hasStartedJudgeRef = useRef(false);
 
   const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
   const [showRoundScreen, setShowRoundScreen] = useState(false);
@@ -80,18 +84,49 @@ export default function Page() {
 
   // ラウンド監視
   useEffect(() => {
-    if (round === 6) {
-      setScreen("judge");
-      judge();
-    }
-  }, [round]);
+    if (
+      round !== 2 ||
+      hasStartedJudgeRef.current ||
+      !game.selectedTopic
+    ) return;
+
+    hasStartedJudgeRef.current = true;
+    setScreen("judge");
+
+    const finishBattle = async () => {
+      try {
+        const result = await judge();
+
+        saveBattleResultSession({
+          judgeResult: result,
+          stance: game.stance,
+          aiStance: game.aiStance,
+          topicBackground: game.selectedTopic!.background,
+        });
+
+        router.replace("/battle/result");
+      } catch (error) {
+        console.error("ジャッジに失敗しました:", error);
+        hasStartedJudgeRef.current = false;
+      }
+    };
+
+    void finishBattle();
+  }, [
+    round,
+    judge,
+    router,
+    game.stance,
+    game.aiStance,
+    game.selectedTopic,
+  ]);
 
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
 
 
-      {/* <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0">
         {game.selectedTopic?.background === "court" && (
           <CourtBackground key="court" />
         )}
@@ -105,7 +140,7 @@ export default function Page() {
         )}
 
         <div className="absolute inset-0 bg-black/50" />
-      </div> */}
+      </div>
 
       <div className="absolute inset-0 z-10 flex items-center justify-center p-4 overflow-auto">
 
@@ -122,7 +157,7 @@ export default function Page() {
 
           ) : (
 
-            <div className="origin-center scale-[0.8] 2xl:scale-100">
+            <div className="origin-center scale-[0.9] 2xl:scale-100">
 
               <TeamScreen
                 {...game}
@@ -150,7 +185,7 @@ export default function Page() {
 
           ) : (
 
-            <div className="origin-center scale-[0.8] 2xl:scale-100">
+            <div className="origin-center scale-[0.9] 2xl:scale-100">
 
               <BattleScreen
                 {...game}
@@ -172,12 +207,18 @@ export default function Page() {
 
             <MobileJudgeScreen
               judgeResult={game.judgeResult}
+              stance={game.stance}
+              aiStance={game.aiStance}
+              isCourt={game.selectedTopic?.background === "court"}
             />
 
           ) : (
 
             <JudgeScreen
               judgeResult={game.judgeResult}
+              stance={game.stance}
+              aiStance={game.aiStance}
+              isCourt={game.selectedTopic?.background === "court"}
             />
 
           )

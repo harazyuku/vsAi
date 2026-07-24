@@ -186,6 +186,10 @@ ${userMessage}
 
     const data = await response.json();
 
+    if (!response.ok || typeof data.reply !== "string" || !data.reply.trim()) {
+      throw new Error(data.error || "AIの回答を取得できませんでした");
+    }
+
     return data.reply;
   };
 
@@ -257,7 +261,14 @@ ${userMessage}
     });
 
     const result = await response.json();
-    setJudgeResult(result);
+
+    if (!response.ok) {
+      throw new Error(result.error || "判定結果を取得できませんでした");
+    }
+
+    const judgeResult = result as JudgeResult;
+    setJudgeResult(judgeResult);
+    return judgeResult;
   };
 
   return {

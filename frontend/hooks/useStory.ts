@@ -2,12 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AICharacter, Topic } from "@/app/config/aiConfig";
-
-export type StoryLine = {
-  speaker: "ナレーション" | "あなた" | "対戦相手";
-  text: string;
-  side?: "player" | "enemy";
-};
+import { createSchoolStory } from "./story/school";
+import { createCourtStory } from "./story/court";
+import { createDeathGameStory } from "./story/deathgame";
+import type { StoryActorId, StoryActorView, StoryContext, StoryLine } from "./story/types";
 
 type UseStoryProps = {
   selectedAI?: AICharacter | null;
@@ -35,39 +33,125 @@ export function useStory({
   const story = useMemo<StoryLine[]>(() => {
     if (!selectedAI || !selectedTopic) return [];
 
-    return [
-      {
-        speaker: "ナレーション",
-        text: "ひとつの出来事をきっかけに、二つの主張が激しくぶつかろうとしていた。",
-      },
-      {
-        speaker: "対戦相手",
-        side: "enemy",
-        text: `私の立場は「${aiStance}」だ。この結論を譲るつもりはない。`,
-      },
-      {
-        speaker: "あなた",
-        side: "player",
-        text: `なら、こちらは「${stance}」の立場から話そう。`,
-      },
-      {
-        speaker: "ナレーション",
-        text: selectedTopic.topic,
-      },
-      {
-        speaker: "対戦相手",
-        side: "enemy",
-        text: "互いの主張は平行線のまま。決着は、言葉でつけるしかないようだ。",
-      },
-      {
-        speaker: "ナレーション",
-        text: "それぞれの正義を懸けた討論が、いま始まる。",
-      },
-    ];
+    const context: StoryContext = {
+      topic: selectedTopic.topic,
+      stance,
+      aiStance,
+    };
+
+    switch (selectedTopic.background) {
+      case "school":
+        return createSchoolStory(context);
+      case "court":
+        return createCourtStory(context);
+      case "deathgame":
+        return createDeathGameStory(context);
+    }
   }, [aiStance, selectedAI, selectedTopic, stance]);
 
   const currentLine = story[lineIndex];
   const isTyping = Boolean(currentLine && displayedText.length < currentLine.text.length);
+
+  useEffect(() => {
+    const backdropUrls = story
+      .map((line) => line.backdrop)
+      .filter((backdrop): backdrop is string => Boolean(backdrop));
+
+    backdropUrls.forEach((backdrop) => {
+      const image = new Image();
+      image.src = backdrop;
+    });
+  }, [story]);
+
+  const lineSide =
+    currentLine?.side ??
+    (currentLine?.speaker === "原告側"
+      ? stance === "原告"
+        ? "player"
+        : "enemy"
+      : currentLine?.speaker === "被告側"
+        ? stance === "被告"
+          ? "player"
+          : "enemy"
+        : undefined);
+  const revealedStances = useMemo(() => {
+    const revealedLines = story.slice(0, lineIndex + 1);
+
+    return {
+      player: revealedLines.some((line) => line.revealStance === "player"),
+      enemy: revealedLines.some((line) => line.revealStance === "enemy"),
+    };
+  }, [lineIndex, story]);
+
+  const actorViews = useMemo<StoryActorView[]>(() => {
+    if (!currentLine || !selectedAI) return [];
+
+    const actors: Record<StoryActorId, Omit<StoryActorView, "isFocused">> = {
+      claude: {
+        id: "claude",
+        src: "/images/chara-icons/claude.PNG",
+        alt: "Claude Code",
+        position: "left",
+        placement: "left",
+        size: "claude",
+        flipX: false,
+        isAICharacter: false,
+      },
+      mob: {
+        id: "mob",
+        src: "/images/chara-icons/mobu.PNG",
+        alt: "開発者",
+        position: "right",
+        placement: "right",
+        size: "normal",
+        flipX: false,
+        isAICharacter: false,
+      },
+      plaintiff: {
+        id: "plaintiff",
+        src: stance === "原告" ? "/images/chara-icons/player.PNG" : selectedAI.icon,
+        alt: stance === "原告" ? "あなた（原告側）" : `${selectedAI.name}（原告側）`,
+        position: "left",
+        placement: "left",
+        size: stance === "原告" ? "normal" : "ai",
+        flipX: true,
+        isAICharacter: stance !== "原告",
+      },
+      defendant: {
+        id: "defendant",
+        src: stance === "被告" ? "/images/chara-icons/player.PNG" : selectedAI.icon,
+        alt: stance === "被告" ? "あなた（被告側）" : `${selectedAI.name}（被告側）`,
+        position: "right",
+        placement: "right",
+        size: stance === "被告" ? "normal" : "ai",
+        flipX: false,
+        isAICharacter: stance !== "被告",
+      },
+      enemy: {
+        id: "enemy",
+        src: selectedAI.icon,
+        alt: selectedAI.name,
+        position: "right",
+        placement: "right",
+        size: "ai",
+        flipX: false,
+        isAICharacter: true,
+      },
+    };
+
+    const visibleActors = currentLine.visibleActors ?? [];
+    const showsClaudeAndPlaintiff =
+      visibleActors.includes("claude") && visibleActors.includes("plaintiff");
+
+    return visibleActors.map((actorId) => ({
+      ...actors[actorId],
+      placement:
+        showsClaudeAndPlaintiff && actorId === "plaintiff"
+          ? "center-left"
+          : actors[actorId].placement,
+      isFocused: currentLine.focusActor === actorId,
+    }));
+  }, [currentLine, selectedAI, stance]);
 
   const stopTypingTimer = useCallback(() => {
     if (typingTimerRef.current === null) return;
@@ -152,6 +236,10 @@ export function useStory({
     lineIndex,
     displayedText,
     isTyping,
+    lineSide,
+    revealedStances,
+    actorViews,
+    backdrop: currentLine?.backdrop,
     advanceStory,
     skipStory,
   };

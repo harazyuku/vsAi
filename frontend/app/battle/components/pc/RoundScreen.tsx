@@ -27,7 +27,7 @@ function RoundScreen({
   }, []);
 
   return (
-    <div className={`absolute inset-0 z-15 ${isClosing ? "round-screen-out" : "round-screen-in"}`}>
+    <div className={`absolute inset-0 z-[100] ${isClosing ? "round-screen-out" : "round-screen-in"}`}>
       <div className="round-cinematic absolute inset-0 z-50 flex items-center justify-center overflow-hidden bg-black">
         <div className="round-grid absolute inset-0" />
         <div className="round-flash absolute inset-0" />
@@ -45,7 +45,7 @@ function RoundScreen({
 
           <div className="round-subtitle mt-7 border-y border-white/20 px-14 py-4">
             <p className="text-3xl font-bold tracking-wider text-white/80">
-            {screen === "team" ? "作戦会議" : "そのボキャブラリーで相手を泣かせてやれ"}
+            {screen === "team" ? "作戦会議" : "その一言でねじ伏せろ"}
             </p>
           </div>
         </div>

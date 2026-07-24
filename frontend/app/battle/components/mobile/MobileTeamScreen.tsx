@@ -90,8 +90,7 @@ function TeamScreen({
       h-full
       rounded-3xl
       border border-white/10
-      bg-white/5
-      backdrop-blur-xl
+      bg-black/45
       p-4
       flex
       flex-col

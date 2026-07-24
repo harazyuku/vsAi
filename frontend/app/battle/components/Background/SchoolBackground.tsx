@@ -67,11 +67,14 @@ function SceneContents() {
 export default function Background() {
   return (
     <div className="h-full w-full">
-      <Canvas camera={{ position: [0, 1, 5] }}>
+      <Canvas
+        camera={{ position: [0, 1, 5] }}
+        dpr={[1, 1.25]}
+        gl={{ antialias: false, powerPreference: "high-performance" }}
+      >
         <SceneContents />
       </Canvas>
     </div>
   );
 }
-
 

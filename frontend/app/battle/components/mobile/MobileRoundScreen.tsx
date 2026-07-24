@@ -27,7 +27,7 @@ function RoundScreen({
   }, []);
 
   return (
-    <div className={`absolute inset-0 z-15 ${isClosing ? "round-screen-out" : "round-screen-in"}`}>
+    <div className={`absolute inset-0 z-[100] ${isClosing ? "round-screen-out" : "round-screen-in"}`}>
       <div className="round-cinematic absolute inset-0 z-50 flex items-center justify-center overflow-hidden bg-black px-6">
         <div className="round-grid absolute inset-0" />
         <div className="round-flash absolute inset-0" />
