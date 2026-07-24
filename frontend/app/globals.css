@@ -106,3 +106,185 @@ body {
     opacity: 0;
   }
 }
+
+/* ラウンド開始演出 */
+.round-screen-in {
+  animation: roundScreenIn 0.45s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+
+.round-screen-out {
+  animation: roundScreenOut 0.4s cubic-bezier(0.7, 0, 0.9, 0.25) forwards;
+}
+
+.round-grid {
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  transform: perspective(500px) rotateX(60deg) scale(1.8);
+  animation: roundGridIn 1.8s ease-out both;
+}
+
+.round-line-left {
+  transform-origin: right center;
+  box-shadow: 0 0 24px rgb(59 130 246);
+  animation: roundLineLeft 0.55s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.round-line-right {
+  transform-origin: left center;
+  box-shadow: 0 0 24px rgb(239 68 68);
+  animation: roundLineRight 0.55s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.round-flash {
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.35), transparent 28%),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.2), transparent 45%, rgba(220, 38, 38, 0.2));
+  animation: roundFlash 0.8s 0.35s ease-out both;
+}
+
+.round-title {
+  animation: roundTitleIn 0.65s 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.round-number {
+  text-shadow:
+    -8px 0 30px rgba(59, 130, 246, 0.65),
+    8px 0 30px rgba(239, 68, 68, 0.65);
+  animation: roundNumberPulse 0.9s 0.95s ease-in-out infinite alternate;
+}
+
+.round-subtitle {
+  animation: roundSubtitleIn 0.45s 0.8s ease-out both;
+}
+
+.round-screen-out .round-title {
+  animation: roundTitleOut 0.4s cubic-bezier(0.7, 0, 1, 0.5) forwards;
+}
+
+.round-screen-out .round-line-left {
+  animation: roundLineExitLeft 0.4s ease-in forwards;
+}
+
+.round-screen-out .round-line-right {
+  animation: roundLineExitRight 0.4s ease-in forwards;
+}
+
+@keyframes roundScreenIn {
+  0% {
+    opacity: 0;
+    clip-path: inset(49.8% 0 49.8% 0);
+    transform: scaleX(0.88);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: scaleX(1);
+  }
+}
+
+@keyframes roundScreenOut {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    filter: blur(0);
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    clip-path: inset(42% 0 42% 0);
+    filter: blur(6px);
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(49.8% 0 49.8% 0);
+    filter: blur(8px);
+    transform: scale(1.12);
+  }
+}
+
+@keyframes roundLineLeft {
+  from { transform: translateX(-105%) scaleX(0.2); }
+  to { transform: translateX(0) scaleX(1); }
+}
+
+@keyframes roundLineRight {
+  from { transform: translateX(105%) scaleX(0.2); }
+  to { transform: translateX(0) scaleX(1); }
+}
+
+@keyframes roundFlash {
+  0% { opacity: 0; transform: scale(0.8); }
+  25% { opacity: 1; }
+  100% { opacity: 0.35; transform: scale(1.2); }
+}
+
+@keyframes roundTitleIn {
+  from {
+    opacity: 0;
+    filter: blur(14px);
+    transform: scale(2.2) skewX(-12deg);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1) skewX(0);
+  }
+}
+
+@keyframes roundSubtitleIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes roundNumberPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.045); }
+}
+
+@keyframes roundTitleOut {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.55);
+  }
+}
+
+@keyframes roundLineExitLeft {
+  from { transform: translateX(0) scaleX(1); }
+  to { transform: translateX(-110%) scaleX(0.2); }
+}
+
+@keyframes roundLineExitRight {
+  from { transform: translateX(0) scaleX(1); }
+  to { transform: translateX(110%) scaleX(0.2); }
+}
+
+@keyframes roundGridIn {
+  from { opacity: 0; background-position: 0 80px; }
+  to { opacity: 0.18; background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .round-grid,
+  .round-line,
+  .round-flash,
+  .round-title,
+  .round-subtitle,
+  .round-number,
+  .round-screen-in,
+  .round-screen-out {
+    animation: none;
+  }
+}

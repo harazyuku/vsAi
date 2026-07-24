@@ -352,9 +352,10 @@ function TeamScreen({
                 setInput("");
               }}
               className="
-            py-4
-            rounded-xl
-            bg-white/10
+            rounded-xl bg-white/10 py-4
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg hover:shadow-blue-500/20
+            active:translate-y-0
           "
             >
               送信
@@ -367,11 +368,10 @@ function TeamScreen({
                 scrollTeamToBottom();
               }}
               className="
-            py-4
-            rounded-xl
-            bg-white
-            text-black
-            font-bold
+            rounded-xl bg-white py-4 font-bold text-black
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-gray-100 hover:shadow-lg hover:shadow-white/20
+            active:translate-y-0
           "
             >
               確定

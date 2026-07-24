@@ -174,23 +174,23 @@ function TeamScreen({
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <button
-                className="bg-white/10 py-4 rounded-xl"
+                className="rounded-xl bg-blue-500/30 py-4 transition-all duration-200 hover:-translate-y-1 hover:bg-blue-500/40 hover:shadow-lg hover:shadow-blue-500/20 active:translate-y-0"
                 onClick={() => {
                   handleSendMessage(input);
                   setInput("");
                 }}
               >
-                送信
+                チームに送信
               </button>
 
               <button
-                className="bg-white text-black py-4 rounded-xl"
+                className="rounded-xl bg-red-500/30 py-4 transition-all duration-200 hover:-translate-y-1 hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20 active:translate-y-0"
                 onClick={() => {
                   onChangeScreen();
                   scrollTeamToBottom();
                 }}
               >
-                確定
+                バトルフェーズへ
               </button>
             </div>
           </div>

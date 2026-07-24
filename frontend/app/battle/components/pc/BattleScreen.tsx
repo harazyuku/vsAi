@@ -239,7 +239,7 @@ function BattleScreen({
               disabled={isAITyping}
               className="w-full rounded-2xl bg-white py-5 font-bold text-black hover:bg-gray-200 transition disabled:opacity-50"
             >
-              {showConfirm ? "確認" : "これで論破する"}
+              {showConfirm ? "次のラウンドへ" : "確定"}
             </button>
           </div>
         </div>

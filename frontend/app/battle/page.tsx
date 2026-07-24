@@ -88,7 +88,7 @@ export default function Page() {
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
 
 
-      <div className="fixed inset-0 z-0">
+      {/* <div className="fixed inset-0 z-0">
         {game.selectedTopic?.background === "court" && (
           <CourtBackground key="court" />
         )}
@@ -102,7 +102,7 @@ export default function Page() {
         )}
 
         <div className="absolute inset-0 bg-black/50" />
-      </div>
+      </div> */}
 
 
       {showIntro && (
@@ -226,7 +226,6 @@ export default function Page() {
           />
 
         )
-
       )}
 
 

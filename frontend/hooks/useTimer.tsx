@@ -7,7 +7,7 @@ export const useTimer = () => {
   const battleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // チーム画面タイマー
-  const startTeamTimer = (seconds = 60) => {
+  const startTeamTimer = (seconds = 6000000) => {
     setTime(seconds);
 
     return new Promise<void>((resolve) => {
@@ -26,7 +26,7 @@ export const useTimer = () => {
   };
 
   // バトル画面タイマー
-  const startBattleTimer = (seconds = 60) => {
+  const startBattleTimer = (seconds = 360) => {
     setTime(seconds);
 
     return new Promise<void>((resolve) => {
