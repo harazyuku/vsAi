@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useGameLogic } from "@/hooks/useGameLogic/useGameLogic";
-import IntroScreen from "./components/pc/IntroScreen";
-import MobileIntroScreen from "./components/mobile/MobileIntroScreen";
 import TeamScreen from "./components/pc/TeamScreen";
 import MobileTeamScreen from "./components/mobile/MobileTeamScreen";
 import BattleScreen from "./components/pc/BattleScreen";
@@ -15,12 +13,12 @@ import MobileJudgeScreen from "./components/mobile/MobileJudgeScreen";
 import CourtBackground from "./components/Background/CourtBackground";
 import DeathGameBackground from "./components/Background/DeathGameBackground";
 import SchoolBackground from "./components/Background/SchoolBackground";
+import { loadBattleSession } from "@/lib/battleSession";
 
 export default function Page() {
   const game = useGameLogic();
 
-  const [screen, setScreen] = useState<"intro" | "team" | "battle" | "judge">("intro");
-  const [showIntro, setShowIntro] = useState(true);
+  const [screen, setScreen] = useState<"team" | "battle" | "judge">("team");
   const [showRoundScreen, setShowRoundScreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -55,6 +53,16 @@ export default function Page() {
 
   // 初期化フロー
   useEffect(() => {
+    const savedSession = loadBattleSession();
+
+    if (savedSession) {
+      setSelectedAI(savedSession.selectedAI);
+      setSelectedTopic(savedSession.selectedTopic);
+      setStance(savedSession.stance);
+      setAiStance(savedSession.aiStance);
+      return;
+    }
+
     const ai = selectAi();
 
     const topic = selectTopic();
@@ -79,11 +87,6 @@ export default function Page() {
   }, [round]);
 
 
-  const closeIntro = () => {
-    setShowIntro(false);
-  };
-
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
 
@@ -103,29 +106,6 @@ export default function Page() {
 
         <div className="absolute inset-0 bg-black/50" />
       </div> */}
-
-
-      {showIntro && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center overflow-auto">
-
-          {isMobile ? (
-            <MobileIntroScreen
-              {...game}
-              onChangeScreen={() => setScreen("team")}
-              closeIntro={closeIntro}
-            />
-          ) : (
-            <IntroScreen
-              {...game}
-              onChangeScreen={() => setScreen("team")}
-              closeIntro={closeIntro}
-            />
-          )}
-
-        </div>
-      )}
-
-
 
       <div className="absolute inset-0 z-10 flex items-center justify-center p-4 overflow-auto">
 
@@ -209,7 +189,7 @@ export default function Page() {
 
 
 
-      {showRoundScreen && screen !== "intro" && screen !== "judge" && (
+      {showRoundScreen && screen !== "judge" && (
 
         isMobile ? (
 
