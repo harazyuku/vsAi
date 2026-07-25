@@ -10,7 +10,7 @@ type Props = {
   onComplete: () => void;
 };
 
-const shuffleSituations = [
+export const shuffleSituations = [
   "学級裁判",
   "国会議事堂",
   "宇宙ステーション",
@@ -28,7 +28,7 @@ const shuffleSituations = [
   "異世界コロシアム",
 ];
 
-const selectableSituations: Record<
+export const selectableSituations: Record<
   Topic["background"],
   { name: string; image: string; mobileImage: string; mobileClass: string }
 > = {

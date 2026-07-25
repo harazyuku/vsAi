@@ -1,31 +1,61 @@
-// "use client";
+"use client";
 
-// import React, { createContext, useContext, useEffect, useState } from "react";
-// import { io, Socket } from "socket.io-client";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import { io, type Socket } from "socket.io-client";
 
-// const SocketContext = createContext<Socket | null>(null);
+type SocketContextValue = {
+  socket: Socket | null;
+  isConnected: boolean;
+};
 
-// export const useSocket = () => useContext(SocketContext);
+const SocketContext = createContext<SocketContextValue>({
+  socket: null,
+  isConnected: false,
+});
 
-// export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-//   const [socket, setSocket] = useState<Socket | null>(null);
+export const useSocket = () => useContext(SocketContext);
 
-//   useEffect(() => {
-//     // 3001番ポートのバックエンドに接続
-//     const socketInstance = io("http://localhost:3001", {
-//       autoConnect: true,
-//     });
+export function SocketProvider({ children }: { children: ReactNode }) {
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-//     setSocket(socketInstance);
+  useEffect(() => {
+    const socketUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3001";
+    const socketInstance = io(socketUrl, {
+      autoConnect: true,
+      transports: ["websocket", "polling"],
+    });
 
-//     return () => {
-//       socketInstance.disconnect();
-//     };
-//   }, []);
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
 
-//   return (
-//     <SocketContext.Provider value={socket}>
-//       {children}
-//     </SocketContext.Provider>
-//   );
-// };
+    socketInstance.on("connect", handleConnect);
+    socketInstance.on("disconnect", handleDisconnect);
+    // Socketはブラウザ上でのみ生成するため、マウント後にContextへ渡す。
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSocket(socketInstance);
+
+    return () => {
+      socketInstance.off("connect", handleConnect);
+      socketInstance.off("disconnect", handleDisconnect);
+      socketInstance.disconnect();
+    };
+  }, []);
+
+  const value = useMemo(
+    () => ({ socket, isConnected }),
+    [isConnected, socket],
+  );
+
+  return (
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
+  );
+}

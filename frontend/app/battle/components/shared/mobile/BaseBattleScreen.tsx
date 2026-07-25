@@ -2,18 +2,32 @@
 import { useGameLogic } from '@/hooks/useGameLogic/useGameLogic';
 import { useTimer } from '@/hooks/useTimer';
 import React, { useEffect, useRef, useState } from 'react'
-import BattleInputScreen from "../BattleInputScreen";
-import BattleAttackScreen from "../BattleAttackScreen";
-import BattleResponseScreen from "../BattleResponseScreen";
-import BattleCompactInput from "../BattleCompactInput";
+import BattleInputScreen from "../../BattleInputScreen";
+import BattleAttackScreen from "../../BattleAttackScreen";
+import BattleResponseScreen from "../../BattleResponseScreen";
+import BattleCompactInput from "../../BattleCompactInput";
 
 type Props = ReturnType<typeof useGameLogic> & {
   onChangeScreen: () => void;
   setShowRoundScreen: React.Dispatch<React.SetStateAction<boolean>>;
+  isMultiplayer: boolean;
+  sendSharedBattleMessage: (message: string, kind: "player" | "ai") => void;
+  canSubmit?: boolean;
+  playerDisplayName?: string;
+  teamRoleLabel?: string;
+  sharedBattleEvent?: {
+    content: string;
+    kind: "player" | "ai";
+    createdAt: number;
+    isOwn: boolean;
+  } | null;
+  onNextRoundRequest?: () => void;
+  isNextRoundReady?: boolean;
+  nextRoundReadyLabel?: string;
 };
 
 // チームロジック
-function BattleScreen({
+function BaseBattleScreen({
   wait,
   teamMessages,
   battleMessages,
@@ -38,6 +52,15 @@ function BattleScreen({
 
   stance,
   selectedTopic,
+  isMultiplayer,
+  sendSharedBattleMessage,
+  canSubmit = true,
+  playerDisplayName = "あなた",
+  teamRoleLabel,
+  sharedBattleEvent,
+  onNextRoundRequest,
+  isNextRoundReady = false,
+  nextRoundReadyLabel,
 }: Props) {
   const { time, startBattleTimer, stopBattleTimer } = useTimer();
   const [input, setInput] = useState("");
@@ -53,7 +76,7 @@ function BattleScreen({
 
   // 自分の発言〜aiが発言し画面に表示までのフロー
   const handleSendMessage = async (message: string) => {
-    if (!message.trim()) return;
+    if (!canSubmit || !message.trim()) return;
     setShowInputScreen(false);
     setHasSubmitted(true);
     setAttackMessage(message);
@@ -63,7 +86,11 @@ function BattleScreen({
     stopBattleTimer();
     setIsAITyping(true);
 
-    sendBattleMessage(message);
+    if (isMultiplayer) {
+      sendSharedBattleMessage(message, "player");
+    } else {
+      sendBattleMessage(message);
+    }
 
     const prompt = createBattlePrompt(message);
 
@@ -82,6 +109,7 @@ function BattleScreen({
    setShowRoundScreen(true);
     await wait(2200);
     setShowRoundScreen(false);
+    if (!canSubmit) return;
     setShowInputScreen(true);
 
     // 残り時間タイマースタート
@@ -100,6 +128,23 @@ function BattleScreen({
     return () => {
     };
   }, []);
+
+  useEffect(() => {
+    if (!isMultiplayer || !sharedBattleEvent || sharedBattleEvent.isOwn) return;
+
+    if (sharedBattleEvent.kind === "player") {
+      responseAddedRef.current = false;
+      setResponseMessage("");
+      setAttackMessage(sharedBattleEvent.content);
+      setIsAITyping(true);
+      return;
+    }
+
+    responseAddedRef.current = true;
+    setHasSubmitted(true);
+    setResponseMessage(sharedBattleEvent.content);
+    setIsAITyping(true);
+  }, [isMultiplayer, sharedBattleEvent]);
 
   // メッセージが増えたらスクロール
   useEffect(() => {
@@ -139,7 +184,11 @@ function BattleScreen({
       onReveal={() => {
         if (responseAddedRef.current || !responseMessage) return;
         responseAddedRef.current = true;
-        sendAiBattleMessage(responseMessage);
+        if (isMultiplayer) {
+          sendSharedBattleMessage(responseMessage, "ai");
+        } else {
+          sendAiBattleMessage(responseMessage);
+        }
       }}
       onConfirm={() => {
         setResponseMessage("");
@@ -169,13 +218,20 @@ function BattleScreen({
     <div className="flex shrink-0 items-start justify-between gap-3">
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm text-gray-400">
-          あなたは
-          <span className="text-white font-bold">
-            「{stance}」
-          </span>
-          派
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-sm text-gray-400">
+            {playerDisplayName}は
+            <span className="text-white font-bold">
+              「{stance}」
+            </span>
+            派
+          </p>
+          {teamRoleLabel && (
+            <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-black text-cyan-200">
+              {teamRoleLabel}
+            </span>
+          )}
+        </div>
 
         <h1 className="line-clamp-3 break-words text-base font-bold leading-snug sm:text-lg">
           {selectedTopic?.topic}
@@ -298,9 +354,9 @@ function BattleScreen({
                 p-4
                 rounded-2xl
                 ${
-                  m.role==="あなた"
-                  ? "bg-blue-500/20"
-                  : "bg-red-500/20 ml-auto"
+                  m.role==="敵AI"
+                  ? "bg-red-500/20 ml-auto"
+                  : "bg-blue-500/20"
                 }
               `}
             >
@@ -326,7 +382,13 @@ function BattleScreen({
 
     {/* 入力 */}
     <div className="shrink-0">
-      {!hasSubmitted ? (
+      {!hasSubmitted && !canSubmit ? (
+        <div className="w-full rounded-2xl border border-cyan-300/25 bg-cyan-400/10 py-4 text-center">
+          <p className="animate-pulse font-black tracking-wider text-cyan-100">
+            リーダーが発言中・・・
+          </p>
+        </div>
+      ) : !hasSubmitted ? (
         <BattleCompactInput
           value={input}
           time={time}
@@ -341,10 +403,14 @@ function BattleScreen({
       ) : (
         <button
           onClick={()=>{
-            onChangeScreen();
-            nextRound();
+            if (isMultiplayer) {
+              onNextRoundRequest?.();
+            } else {
+              onChangeScreen();
+              nextRound();
+            }
           }}
-          disabled={isAITyping}
+          disabled={isAITyping || isNextRoundReady}
           className="
             w-full
             mt-3
@@ -359,7 +425,7 @@ function BattleScreen({
             disabled:opacity-50
           "
         >
-          次のラウンドへ
+          {nextRoundReadyLabel ?? "次のラウンドへ"}
         </button>
       )}
 
@@ -374,4 +440,4 @@ function BattleScreen({
 
 
 
-export default BattleScreen
+export default BaseBattleScreen

@@ -5,13 +5,18 @@ const cors = require("cors");
 const gameHandler = require("./src/sockets/gameHandler");
 
 const app = express();
-app.use(cors());
+const clientOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim());
+const port = Number(process.env.PORT) || 3001;
+
+app.use(cors({ origin: clientOrigins }));
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Next.js のフロントエンドポートに合わせます
+    origin: clientOrigins,
     methods: ["GET", "POST"]
   }
 });
@@ -27,6 +32,10 @@ app.post("/match", (req, res) => {
   res.json({ message: "REST match is deprecated. Please use real-time socket matching." });
 });
 
-server.listen(3001, () => {
-  console.log("Realtime Debate Server running on port 3001");
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
+server.listen(port, () => {
+  console.log(`Realtime Debate Server running on port ${port}`);
 });
