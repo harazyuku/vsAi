@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck -- Vercel's beta WebSocket server export is not modeled by Next.js types yet.
-import { createServer } from "node:http";
-import { Server } from "socket.io";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
 
 const server = createServer();
 const io = new Server(server, {
@@ -250,4 +249,4 @@ io.on("connection", (socket) => {
   });
 });
 
-export default server;
+module.exports = server;
