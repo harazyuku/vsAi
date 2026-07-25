@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck -- Vercel's beta WebSocket server export is not modeled by Next.js types yet.
-import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 
-const app = express();
-const server = createServer(app);
+const server = createServer();
 const io = new Server(server, {
-  path: "/api/socket",
   transports: ["websocket"],
   cors: { origin: true, methods: ["GET", "POST"] },
 });

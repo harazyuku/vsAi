@@ -34,7 +34,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       autoConnect: true,
       path:
         isProduction && !process.env.NEXT_PUBLIC_SOCKET_URL
-          ? "/api/socket"
+          ? "/api/socket/socket.io"
           : "/socket.io",
       transports: ["websocket"],
       reconnection: true,
