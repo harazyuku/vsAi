@@ -195,7 +195,9 @@ export default function StoryScreen({
         <div
           key={actor.id}
           className={`absolute z-10 flex items-center justify-center transition-all duration-500 ${
-            actor.placement === "left"
+            actor.id === "mob"
+              ? "inset-x-[3%] top-[5%] h-[68%] w-[94%]"
+              : actor.placement === "left"
               ? "left-[-16%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:left-[-4%] min-[1100px]:h-auto min-[1100px]:w-[42%]"
               : actor.placement === "center-left"
                 ? "left-[-4%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:left-[25%] min-[1100px]:h-auto min-[1100px]:w-[38%]"
@@ -224,6 +226,8 @@ export default function StoryScreen({
               } ${
                 actor.id === "sato" ? "story-sato-mask" : ""
               } ${
+                actor.id === "mob" ? "story-engineer-mask" : ""
+              } ${
                 actor.id === "heroine" ||
                 actor.id === "player" ||
                 (!actor.isAICharacter &&
@@ -237,7 +241,9 @@ export default function StoryScreen({
                     ? "story-monitor-in"
                     : ""
               } ${
-                actor.size === "claude"
+                actor.id === "mob"
+                  ? "story-engineer-mask aspect-[3/2] w-[min(62vw,760px)] max-w-none object-cover"
+                  : actor.size === "claude"
                   ? "max-h-[45vh] max-w-[62%]"
                   : actor.size === "portrait"
                     ? "story-portrait-mask aspect-[3/4] max-h-[58vh] max-w-[72%] object-cover object-top"

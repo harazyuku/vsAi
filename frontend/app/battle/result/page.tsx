@@ -64,21 +64,42 @@ export default function BattleResultPage() {
         ? winningStance === "生贄賛成"
           ? "/back-images/ikenie-yes.jpg"
           : "/back-images/ikenie-no.PNG"
-      : null;
+        : result.topicBackground === "school"
+          ? winningStance === "食べてはいけない"
+            ? "/back-images/karaage-yes.PNG"
+            : "/back-images/karaage-no.PNG"
+          : null;
+  const mobileVerdictBackground =
+    result.topicBackground === "court"
+      ? plaintiffWon
+        ? "/back-images/se/seSyouso.png"
+        : "/back-images/se/seHaiso.png"
+      : result.topicBackground === "deathgame"
+        ? winningStance === "生贄賛成"
+          ? "/back-images/se/seIkenie-yes.png"
+          : "/back-images/se/seIkenie-no.png"
+        : result.topicBackground === "school"
+          ? winningStance === "食べてはいけない"
+            ? "/back-images/se/seKaraage-yes.png"
+            : "/back-images/se/seKaraage-no.png"
+          : null;
+  const displayedBackground = isMobile
+    ? mobileVerdictBackground
+    : verdictBackground;
 
   const judgeProps = {
     judgeResult: result.judgeResult,
     stance: result.stance,
     aiStance: result.aiStance,
     isCourt: result.topicBackground === "court",
-    resultBackground: verdictBackground ?? undefined,
+    resultBackground: displayedBackground ?? undefined,
   };
 
   return (
     <main className="relative min-h-screen bg-black text-white">
-      {verdictBackground && (
+      {displayedBackground && (
         <Image
-          src={verdictBackground}
+          src={displayedBackground}
           alt=""
           fill
           priority

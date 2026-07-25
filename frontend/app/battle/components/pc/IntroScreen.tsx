@@ -30,19 +30,25 @@ const shuffleSituations = [
 
 const selectableSituations: Record<
   Topic["background"],
-  { name: string; image: string }
+  { name: string; image: string; mobileImage: string; mobileClass: string }
 > = {
   school: {
     name: "学級裁判",
     image: "/images/situations/school.png",
+    mobileImage: "/images/situations/mobile/seSchool.PNG",
+    mobileClass: "",
   },
   court: {
     name: "法廷",
     image: "/images/situations/saibansyo.png",
+    mobileImage: "/images/situations/mobile/seSaibansyo.PNG",
+    mobileClass: "",
   },
   deathgame: {
     name: "デスゲーム会場",
     image: "/images/situations/deathgame.png",
+    mobileImage: "/images/situations/mobile/seDeathGame.PNG",
+    mobileClass: "scale-[1.08] md:scale-100",
   },
 };
 
@@ -98,18 +104,23 @@ export default function IntroScreen({
         isClosing ? "fade-out" : ""
       }`}
     >
-      <Image
-        src={selectedSituation.image}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-out ${
+      <picture
+        className={`absolute inset-0 h-full w-full transition-all duration-1000 ease-out ${
           isShuffling
             ? "scale-105 opacity-0"
             : "scale-100 opacity-100"
         }`}
-      />
+      >
+        <source
+          media="(max-width: 767px)"
+          srcSet={selectedSituation.mobileImage}
+        />
+        <img
+          src={selectedSituation.image}
+          alt=""
+          className={`h-full w-full object-cover object-center ${selectedSituation.mobileClass}`}
+        />
+      </picture>
       <div className="absolute inset-0 bg-black/60" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_10%,rgba(0,0,0,.78)_100%)]" />
 

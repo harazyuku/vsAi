@@ -117,17 +117,19 @@ body {
 @keyframes storyActorIn {
   from {
     opacity: 0;
-    transform: translateY(72px);
+    transform: translateY(24px);
+    filter: blur(3px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
 .story-actor-in {
-  animation: storyActorIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: storyActorIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -656,6 +658,27 @@ body {
     rgba(0, 0, 0, 0.8) 68%,
     transparent 100%
   );
+}
+
+.story-engineer-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    #000 35%,
+    rgba(0, 0, 0, 0.92) 50%,
+    rgba(0, 0, 0, 0.42) 66%,
+    transparent 86%
+  );
+  mask-image: radial-gradient(
+    ellipse at center,
+    #000 35%,
+    rgba(0, 0, 0, 0.92) 50%,
+    rgba(0, 0, 0, 0.42) 66%,
+    transparent 86%
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .story-character-bottom-fade {
