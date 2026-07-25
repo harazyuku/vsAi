@@ -104,7 +104,11 @@ export default function MatchingPage() {
   const retryMatching = () => {
     hasStartedRef.current = false;
     setStatus(socket?.connected ? "waiting" : "connecting");
-    startMatching();
+    if (socket?.connected) {
+      startMatching();
+    } else {
+      socket?.connect();
+    }
   };
 
   return (
