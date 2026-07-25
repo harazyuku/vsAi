@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const { createServer } = require("node:http");
-const { Server } = require("socket.io");
+import { createServer } from "node:http";
+import { Server } from "socket.io";
 
 const server = createServer();
 const io = new Server(server, {
@@ -249,4 +248,4 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = server;
+export default server;
