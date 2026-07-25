@@ -1,12 +1,6 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/socket/socket.io",
-      "destination": "/api/socket"
-    }
-  ],
   "functions": {
-    "api/socket.js": {
+    "app/api/ws/route.ts": {
       "maxDuration": 300
     }
   }
