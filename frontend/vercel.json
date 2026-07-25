@@ -6,7 +6,7 @@
     }
   ],
   "functions": {
-    "api/socket.ts": {
+    "api/socket.js": {
       "maxDuration": 300
     }
   }
