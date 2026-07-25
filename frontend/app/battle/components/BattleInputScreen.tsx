@@ -40,10 +40,6 @@ export default function BattleInputScreen({
         <div className="absolute -left-20 top-0 h-full w-80 -skew-x-12 bg-blue-600/10" />
         <div className="absolute -right-20 top-0 h-full w-80 -skew-x-12 bg-cyan-400/[0.06]" />
         <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(90deg,rgba(96,165,250,.8)_1px,transparent_1px)] [background-size:80px_100%]" />
-        <div className="pointer-events-none absolute inset-0 z-0 flex -rotate-3 items-center justify-center overflow-hidden whitespace-nowrap text-[clamp(3.5rem,9vw,9rem)] font-black italic tracking-[-0.06em] text-white/[0.07]">
-          一言で論破せよ！！！
-        </div>
-
         <div className={`absolute right-4 top-4 z-20 min-w-24 border-l-2 px-3 text-right md:right-8 md:top-6 md:px-4 ${
           isTimeCritical ? "border-red-400 text-red-300" : "border-cyan-300/50 text-cyan-200"
         }`}>

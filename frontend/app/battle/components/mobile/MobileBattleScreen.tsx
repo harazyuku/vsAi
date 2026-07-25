@@ -111,7 +111,7 @@ function BattleScreen({
   }, [battleMessages]);
 
   return (
-   <div className="h-[100dvh] w-full overflow-hidden bg-black/20 p-2 sm:p-4">
+   <div className="h-[100dvh] w-full overflow-hidden bg-transparent p-2 sm:p-4">
   {showInputScreen && (
     <BattleInputScreen
       value={input}
@@ -155,7 +155,7 @@ function BattleScreen({
       rounded-2xl
       sm:rounded-3xl
       border border-white/10
-      bg-black/45
+      bg-transparent
       p-3
       sm:p-4
       flex

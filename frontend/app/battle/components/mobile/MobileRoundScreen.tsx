@@ -47,7 +47,7 @@ function RoundScreen({
             <p className="text-lg font-bold leading-relaxed tracking-wider text-white/80">
               {screen === "team"
                 ? "作戦会議"
-                : "そのボキャブラリーで相手を泣かせてやれ"}
+                : "その一言でねじ伏せろ"}
             </p>
           </div>
         </div>

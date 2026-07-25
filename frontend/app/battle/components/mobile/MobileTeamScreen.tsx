@@ -82,7 +82,7 @@ function TeamScreen({
 
   return (
 
-    <div className="h-[100dvh] w-full overflow-hidden bg-black/20 p-2 sm:p-4">
+    <div className="h-[100dvh] w-full overflow-hidden bg-transparent p-2 sm:p-4">
 
       <div
         className="
@@ -91,7 +91,7 @@ function TeamScreen({
       rounded-2xl
       sm:rounded-3xl
       border border-white/10
-      bg-black/45
+      bg-transparent
       p-3
       sm:p-4
       flex
@@ -355,13 +355,13 @@ function TeamScreen({
                 setInput("");
               }}
               className="
-            rounded-xl bg-white/10 py-3 sm:py-4
+            rounded-xl bg-blue-500/30 py-3 sm:py-4
             transition-all duration-200
-            hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg hover:shadow-blue-500/20
+            hover:-translate-y-1 hover:bg-blue-500/40 hover:shadow-lg hover:shadow-blue-500/20
             active:translate-y-0
           "
             >
-              送信
+              チームに送信
             </button>
 
 
@@ -371,13 +371,13 @@ function TeamScreen({
                 scrollTeamToBottom();
               }}
               className="
-            rounded-xl bg-white py-3 font-bold text-black sm:py-4
+            rounded-xl bg-red-500/30 py-3 sm:py-4
             transition-all duration-200
-            hover:-translate-y-1 hover:bg-gray-100 hover:shadow-lg hover:shadow-white/20
+            hover:-translate-y-1 hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20
             active:translate-y-0
           "
             >
-              確定
+              バトルフェーズへ
             </button>
 
           </div>

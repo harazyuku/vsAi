@@ -195,7 +195,9 @@ export default function StoryScreen({
         <div
           key={actor.id}
           className={`absolute z-10 flex items-center justify-center transition-all duration-500 ${
-            actor.placement === "left"
+            actor.id === "mob"
+              ? "inset-x-[3%] top-[5%] h-[68%] w-[94%]"
+              : actor.placement === "left"
               ? "left-[-16%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:left-[-4%] min-[1100px]:h-auto min-[1100px]:w-[42%]"
               : actor.placement === "center-left"
                 ? "left-[-4%] top-0 h-[62%] w-[76%] min-[1100px]:inset-y-0 min-[1100px]:left-[25%] min-[1100px]:h-auto min-[1100px]:w-[38%]"
@@ -214,45 +216,58 @@ export default function StoryScreen({
               : "translate-y-3 scale-90 opacity-35"
           }`}
         >
-          <div className="absolute h-[55%] w-[55%] rounded-full bg-white/10 blur-3xl" />
-          <img
-            src={actor.src}
-            alt={actor.alt}
-            className={`relative drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] ${
-              actor.id.startsWith("gaki") ? "story-student-mask" : ""
-            } ${
-              actor.id === "sato" ? "story-sato-mask" : ""
-            } ${
-              actor.id === "heroine" && currentLine.speaker === "少女"
-                ? "story-heroine-tremble"
-                : actor.id === "gamemaster"
-                  ? "story-monitor-in"
+          <div className="story-actor-in relative flex h-full w-full items-center justify-center">
+            <div className="absolute h-[55%] w-[55%] rounded-full bg-white/10 blur-3xl" />
+            <img
+              src={actor.src}
+              alt={actor.alt}
+              className={`relative drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] ${
+                actor.id.startsWith("gaki") ? "story-student-mask" : ""
+              } ${
+                actor.id === "sato" ? "story-sato-mask" : ""
+              } ${
+                actor.id === "mob" ? "story-engineer-mask" : ""
+              } ${
+                actor.id === "heroine" ||
+                actor.id === "player" ||
+                (!actor.isAICharacter &&
+                  (actor.id === "plaintiff" || actor.id === "defendant"))
+                  ? "story-character-bottom-fade"
                   : ""
-            } ${
-              actor.size === "claude"
-                ? "max-h-[45vh] max-w-[62%]"
-                : actor.size === "portrait"
-                  ? "story-portrait-mask aspect-[3/4] max-h-[58vh] max-w-[72%] object-cover object-top"
-                : actor.size === "monitor"
-                    ? "story-monitor-mask aspect-video h-full w-full rounded-md border-[10px] border-black bg-black object-cover object-[50%_22%] shadow-[0_0_50px_rgba(239,68,68,.35)]"
-                : actor.size === "student"
-                  ? actor.id === "sato"
-                    ? "max-h-[58vh] max-w-[96%] object-contain"
-                    : "max-h-[44vh] max-w-[60%] object-contain"
-                : actor.size === "ai"
-                  ? "max-h-[44vh] max-w-[60%]"
-                  : "max-h-[64vh] max-w-[72%]"
-            } ${
-              actor.flipX ? "scale-x-[-1]" : ""
-            } ${
-              actor.isAICharacter
-                ? "aspect-square rounded-full border-4 border-white/20 bg-white object-cover"
-                : "object-contain"
-            }`}
-            onError={(event) => {
-              event.currentTarget.style.display = "none";
-            }}
-          />
+              } ${
+                actor.id === "heroine" && currentLine.speaker === "少女"
+                  ? "story-heroine-tremble"
+                  : actor.id === "gamemaster"
+                    ? "story-monitor-in"
+                    : ""
+              } ${
+                actor.id === "mob"
+                  ? "story-engineer-mask aspect-[3/2] w-[min(62vw,760px)] max-w-none object-cover"
+                  : actor.size === "claude"
+                  ? "max-h-[45vh] max-w-[62%]"
+                  : actor.size === "portrait"
+                    ? "story-portrait-mask aspect-[3/4] max-h-[58vh] max-w-[72%] object-cover object-top"
+                  : actor.size === "monitor"
+                      ? "story-monitor-mask aspect-video h-full w-full rounded-md border-[10px] border-black bg-black object-cover object-[50%_22%] shadow-[0_0_50px_rgba(239,68,68,.35)]"
+                  : actor.size === "student"
+                    ? actor.id === "sato"
+                      ? "max-h-[58vh] max-w-[96%] object-contain"
+                      : "max-h-[44vh] max-w-[60%] object-contain"
+                  : actor.size === "ai"
+                    ? "max-h-[44vh] max-w-[60%]"
+                    : "max-h-[64vh] max-w-[72%]"
+              } ${
+                actor.flipX ? "scale-x-[-1]" : ""
+              } ${
+                actor.isAICharacter
+                  ? "aspect-square rounded-full border-4 border-white/20 bg-white object-cover"
+                  : "object-contain"
+              }`}
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+          </div>
         </div>
       ))}
 

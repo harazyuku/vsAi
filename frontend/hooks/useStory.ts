@@ -105,7 +105,7 @@ export function useStory({
       },
       mob: {
         id: "mob",
-        src: "/images/chara-icons/mobu.PNG",
+        src: "/images/chara-icons/engineer.JPG",
         alt: "開発者",
         position: "right",
         placement: "right",
