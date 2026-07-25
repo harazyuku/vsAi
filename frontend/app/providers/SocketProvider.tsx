@@ -27,11 +27,18 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketUrl =
-      process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3001";
+    const isProduction = process.env.NODE_ENV === "production";
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ??
+      (isProduction ? window.location.origin : "http://localhost:3001");
     const socketInstance = io(socketUrl, {
       autoConnect: true,
-      transports: ["websocket", "polling"],
+      path:
+        isProduction && !process.env.NEXT_PUBLIC_SOCKET_URL
+          ? "/api/socket"
+          : "/socket.io",
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 8,
     });
 
     const handleConnect = () => setIsConnected(true);
