@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/socket/socket.io",
+      "destination": "/api/socket"
+    }
+  ],
   "functions": {
     "api/socket.ts": {
       "maxDuration": 300
