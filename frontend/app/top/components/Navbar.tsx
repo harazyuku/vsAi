@@ -26,7 +26,7 @@ function Navbar() {
           rel="noopener noreferrer"
           className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20"
         >
-          <img className="h-full w-full rounded-full object-cover" src="/images/github_logo.jpg" alt="GitHubのロゴ" />
+          <img className="h-full w-full rounded-full object-cover" src="/images/github_logo.webp" alt="GitHubのロゴ" />
         </Link>
       </div>
 

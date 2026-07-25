@@ -34,20 +34,20 @@ const selectableSituations: Record<
 > = {
   school: {
     name: "学級裁判",
-    image: "/images/situations/school.png",
-    mobileImage: "/images/situations/mobile/seSchool.PNG",
+    image: "/images/situations/school.webp",
+    mobileImage: "/images/situations/mobile/seSchool.webp",
     mobileClass: "",
   },
   court: {
     name: "法廷",
-    image: "/images/situations/saibansyo.png",
-    mobileImage: "/images/situations/mobile/seSaibansyo.PNG",
+    image: "/images/situations/saibansyo.webp",
+    mobileImage: "/images/situations/mobile/seSaibansyo.webp",
     mobileClass: "",
   },
   deathgame: {
     name: "デスゲーム会場",
-    image: "/images/situations/deathgame.png",
-    mobileImage: "/images/situations/mobile/seDeathGame.PNG",
+    image: "/images/situations/deathgame.webp",
+    mobileImage: "/images/situations/mobile/seDeathGame.webp",
     mobileClass: "scale-[1.08] md:scale-100",
   },
 };

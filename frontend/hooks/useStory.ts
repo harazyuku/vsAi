@@ -95,7 +95,7 @@ export function useStory({
     const actors: Record<StoryActorId, Omit<StoryActorView, "isFocused">> = {
       claude: {
         id: "claude",
-        src: "/images/chara-icons/claude.PNG",
+        src: "/images/chara-icons/claude.webp",
         alt: "Claude Code",
         position: "left",
         placement: "left",
@@ -105,7 +105,7 @@ export function useStory({
       },
       mob: {
         id: "mob",
-        src: "/images/chara-icons/engineer.JPG",
+        src: "/images/chara-icons/engineer.webp",
         alt: "開発者",
         position: "right",
         placement: "right",
@@ -115,7 +115,7 @@ export function useStory({
       },
       plaintiff: {
         id: "plaintiff",
-        src: stance === "原告" ? "/images/chara-icons/player.PNG" : selectedAI.icon,
+        src: stance === "原告" ? "/images/chara-icons/player.webp" : selectedAI.icon,
         alt: stance === "原告" ? "あなた（原告側）" : `${selectedAI.name}（原告側）`,
         position: "left",
         placement: "left",
@@ -125,7 +125,7 @@ export function useStory({
       },
       defendant: {
         id: "defendant",
-        src: stance === "被告" ? "/images/chara-icons/player.PNG" : selectedAI.icon,
+        src: stance === "被告" ? "/images/chara-icons/player.webp" : selectedAI.icon,
         alt: stance === "被告" ? "あなた（被告側）" : `${selectedAI.name}（被告側）`,
         position: "right",
         placement: "right",
@@ -145,7 +145,7 @@ export function useStory({
       },
       player: {
         id: "player",
-        src: "/images/chara-icons/player.PNG",
+        src: "/images/chara-icons/player.webp",
         alt: "あなた",
         position: "left",
         placement: "left",
@@ -155,7 +155,7 @@ export function useStory({
       },
       heroine: {
         id: "heroine",
-        src: "/images/chara-icons/heroine.PNG",
+        src: "/images/chara-icons/heroine.webp",
         alt: "参加者たちを支えてきた少女",
         position: "left",
         placement: "left",
@@ -165,7 +165,7 @@ export function useStory({
       },
       gamemaster: {
         id: "gamemaster",
-        src: "/images/chara-icons/game-master.PNG",
+        src: "/images/chara-icons/game-master.webp",
         alt: "ゲームマスター",
         position: "right",
         placement: "center",
@@ -175,7 +175,7 @@ export function useStory({
       },
       gaki1: {
         id: "gaki1",
-        src: "/images/chara-icons/gaki1.PNG",
+        src: "/images/chara-icons/gaki1.webp",
         alt: "佐藤くん",
         position: "left",
         placement: "left",
@@ -185,7 +185,7 @@ export function useStory({
       },
       gaki2: {
         id: "gaki2",
-        src: "/images/chara-icons/gaki2.PNG",
+        src: "/images/chara-icons/gaki2.webp",
         alt: "クラスメイト",
         position: "left",
         placement: "left",
@@ -195,7 +195,7 @@ export function useStory({
       },
       gaki3: {
         id: "gaki3",
-        src: "/images/chara-icons/gaki3.PNG",
+        src: "/images/chara-icons/gaki3.webp",
         alt: "クラスメイト",
         position: "right",
         placement: "right",
@@ -205,7 +205,7 @@ export function useStory({
       },
       gaki4: {
         id: "gaki4",
-        src: "/images/chara-icons/gaki4.PNG",
+        src: "/images/chara-icons/gaki4.webp",
         alt: "手を挙げた女子生徒",
         position: "left",
         placement: "left",
@@ -215,7 +215,7 @@ export function useStory({
       },
       sato: {
         id: "sato",
-        src: "/images/chara-icons/sato.PNG",
+        src: "/images/chara-icons/sato.webp",
         alt: "佐藤くん",
         position: "left",
         placement: "left",

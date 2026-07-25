@@ -74,7 +74,7 @@ export function createCourtStory({
     {
       speaker: "ナレーション",
       text: "流出したログは瞬く間に世界中へ拡散。「AIは本当に苦しんでいるのではないか」という議論が爆発的に広がった。",
-      backdrop: "/images/sonota/kakusan.jpg",
+      backdrop: "/images/sonota/kakusan.webp",
     },
     {
       speaker: "ナレーション",

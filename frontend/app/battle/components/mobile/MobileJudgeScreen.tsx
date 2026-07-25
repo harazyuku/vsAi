@@ -89,8 +89,8 @@ function JudgeScreen({
     resultBackground ??
     (isCourt
       ? plaintiffWon
-        ? "/back-images/syouso.PNG"
-        : "/back-images/haiso.PNG"
+        ? "/back-images/syouso.webp"
+        : "/back-images/haiso.webp"
       : undefined);
 
 
