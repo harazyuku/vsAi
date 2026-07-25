@@ -134,9 +134,9 @@ export function createSchoolStory({
   ];
 
   const backdrops = {
-    karaage: "/images/sonota/kyusyoku.PNG",
-    "empty-plate": "/images/sonota/karaagenosara.PNG",
-    "class-trial": "/images/sonota/gakkyusaiban.PNG",
+    karaage: "/images/sonota/kyusyoku.webp",
+    "empty-plate": "/images/sonota/karaagenosara.webp",
+    "class-trial": "/images/sonota/gakkyusaiban.webp",
   } as const;
   let activeBackdrop: string | undefined;
 

@@ -58,30 +58,30 @@ export default function BattleResultPage() {
   const verdictBackground =
     result.topicBackground === "court"
       ? plaintiffWon
-        ? "/back-images/syouso.PNG"
-        : "/back-images/haiso.PNG"
+        ? "/back-images/syouso.webp"
+        : "/back-images/haiso.webp"
       : result.topicBackground === "deathgame"
         ? winningStance === "生贄賛成"
-          ? "/back-images/ikenie-yes.jpg"
-          : "/back-images/ikenie-no.PNG"
+          ? "/back-images/ikenie-yes.webp"
+          : "/back-images/ikenie-no.webp"
         : result.topicBackground === "school"
           ? winningStance === "食べてはいけない"
-            ? "/back-images/karaage-yes.PNG"
-            : "/back-images/karaage-no.PNG"
+            ? "/back-images/karaage-yes.webp"
+            : "/back-images/karaage-no.webp"
           : null;
   const mobileVerdictBackground =
     result.topicBackground === "court"
       ? plaintiffWon
-        ? "/back-images/se/seSyouso.png"
-        : "/back-images/se/seHaiso.png"
+        ? "/back-images/se/seSyouso.webp"
+        : "/back-images/se/seHaiso.webp"
       : result.topicBackground === "deathgame"
         ? winningStance === "生贄賛成"
-          ? "/back-images/se/seIkenie-yes.png"
-          : "/back-images/se/seIkenie-no.png"
+          ? "/back-images/se/seIkenie-yes.webp"
+          : "/back-images/se/seIkenie-no.webp"
         : result.topicBackground === "school"
           ? winningStance === "食べてはいけない"
-            ? "/back-images/se/seKaraage-yes.png"
-            : "/back-images/se/seKaraage-no.png"
+            ? "/back-images/se/seKaraage-yes.webp"
+            : "/back-images/se/seKaraage-no.webp"
           : null;
   const displayedBackground = isMobile
     ? mobileVerdictBackground

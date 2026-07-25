@@ -157,6 +157,6 @@ export function createDeathGameStory({
 
   return story.map((line) => ({
     ...line,
-    backdrop: "/images/sonota/death-game.PNG",
+    backdrop: "/images/sonota/death-game.webp",
   }));
 }

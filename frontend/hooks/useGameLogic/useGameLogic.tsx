@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { aiCharacters, type AICharacter } from "@/app/config/aiConfig";
 import { JudgeResult } from "@/app/battle/components/pc/JudgeScreen";
 import { topics, type Topic } from "@/app/config/aiConfig";
@@ -8,13 +8,13 @@ export const useGameLogic = () => {
   // メッセージの型定義
   type TeamMessage = {
     text: string;
-    role: "あなた" | "味方AI";
+    role: string;
     createdAt?: number;
   };
 
   type BattleMessage = {
     text: string;
-    role: "あなた" | "敵AI";
+    role: string;
     createdAt?: number;
   };
 
@@ -65,6 +65,22 @@ export const useGameLogic = () => {
     ]);
   };
 
+  const receiveTeamMessage = useCallback(
+    (text: string, role: string, createdAt?: number) => {
+      if (!text.trim()) return;
+
+      setTeamMessages((prev) => [
+        ...prev,
+        {
+          text,
+          role,
+          createdAt,
+        },
+      ]);
+    },
+    [],
+  );
+
   // AIメッセージ保存
   const sendAiBattleMessage = (message: string) => {
     if (!message.trim()) return;
@@ -90,6 +106,22 @@ export const useGameLogic = () => {
       }
     ]);
   };
+
+  const receiveBattleMessage = useCallback(
+    (text: string, role: string, createdAt?: number) => {
+      if (!text.trim()) return;
+
+      setBattleMessages((prev) => [
+        ...prev,
+        {
+          text,
+          role,
+          createdAt,
+        },
+      ]);
+    },
+    [],
+  );
 
   // 制限時間内に送信できなかった場合
   const timeUpMessage = () => {
@@ -278,9 +310,11 @@ ${userMessage}
     teamMessages,
     sendTeamMessage,
     sendAiTeamMessage,
+    receiveTeamMessage,
     battleMessages,
     sendBattleMessage,
     sendAiBattleMessage,
+    receiveBattleMessage,
     timeUpMessage,
 
     // スクロール

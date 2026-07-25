@@ -1,15 +1,20 @@
 import { useGameLogic } from '@/hooks/useGameLogic/useGameLogic';
 import { useTimer } from '@/hooks/useTimer';
 import React, { useEffect, useState } from 'react'
-import { AICharacter } from "@/app/config/aiConfig";
 
 type Props = ReturnType<typeof useGameLogic> & {
   onChangeScreen: () => void;
   setShowRoundScreen: React.Dispatch<React.SetStateAction<boolean>>;
+  isMultiplayer: boolean;
+  sendSharedTeamMessage: (message: string) => void;
+  onBattlePhaseRequest?: () => void;
+  isBattleReady?: boolean;
+  battleReadyLabel?: string;
+  teamRoleLabel?: string;
 };
 
 // チームロジック
-function TeamScreen({
+function BaseTeamScreen({
   wait,
   teamMessages,
   battleMessages,
@@ -31,6 +36,12 @@ function TeamScreen({
   createAllyPrompt,
   sendAllyAI,
   sendAiTeamMessage,
+  isMultiplayer,
+  sendSharedTeamMessage,
+  onBattlePhaseRequest,
+  isBattleReady = false,
+  battleReadyLabel,
+  teamRoleLabel,
 }: Props) {
   const { time, startTeamTimer, stopTeamTimer } = useTimer();
   const [input, setInput] = useState("");
@@ -39,6 +50,11 @@ function TeamScreen({
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
     setInput("");
+
+    if (isMultiplayer) {
+      sendSharedTeamMessage(message);
+      return;
+    }
 
     sendTeamMessage(message);
 
@@ -58,7 +74,11 @@ function TeamScreen({
     // 残り時間タイマースタート
     await startTeamTimer();
     stopTeamTimer();
-    onChangeScreen();
+    if (isMultiplayer) {
+      onBattlePhaseRequest?.();
+    } else {
+      onChangeScreen();
+    }
   };
 
 
@@ -94,11 +114,11 @@ function TeamScreen({
               battleMessages.map((m, i) => (
                 <div
                   key={i}
-                  className={`p-3 rounded-xl text-base leading-relaxed ${m.role === "あなた" ? "bg-black/40" : "bg-black/60"
+                  className={`p-3 rounded-xl text-base leading-relaxed ${m.role === "敵AI" ? "bg-black/60" : "bg-black/40"
                     }`}
                 >
-                  <span className={`${m.role === "あなた" ? "text-blue-400" : "text-blue-200"} font-bold block mb-1`}>
-                    {m.role === "あなた" ? "あなた" : "敵AI"}
+                  <span className={`${m.role === "敵AI" ? "text-blue-200" : "text-blue-400"} font-bold block mb-1`}>
+                    {m.role}
                   </span>
                   <p className="text-gray-200">{m.text}</p>
                 </div>
@@ -113,7 +133,14 @@ function TeamScreen({
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl text-gray-400">あなたは<span className='text-blue-500'>『{stance}』</span>派です</h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-xl text-gray-400">あなたは<span className='text-blue-500'>『{stance}』</span>派です</h1>
+                {teamRoleLabel && (
+                  <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs font-black text-cyan-200">
+                    {teamRoleLabel}
+                  </span>
+                )}
+              </div>
               {selectedTopic && (
                 <h1 className="text-2xl font-bold">
                   {selectedTopic.topic}
@@ -184,13 +211,18 @@ function TeamScreen({
               </button>
 
               <button
-                className="rounded-xl bg-red-500/30 py-4 transition-all duration-200 hover:-translate-y-1 hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20 active:translate-y-0"
+                disabled={isBattleReady}
+                className="rounded-xl bg-red-500/30 py-4 transition-all duration-200 hover:-translate-y-1 hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20 active:translate-y-0 disabled:cursor-wait disabled:opacity-55 disabled:hover:translate-y-0"
                 onClick={() => {
-                  onChangeScreen();
+                  if (isMultiplayer) {
+                    onBattlePhaseRequest?.();
+                  } else {
+                    onChangeScreen();
+                  }
                   scrollTeamToBottom();
                 }}
               >
-                バトルフェーズへ
+                {battleReadyLabel ?? "バトルフェーズへ"}
               </button>
             </div>
           </div>
@@ -201,4 +233,4 @@ function TeamScreen({
   )
 }
 
-export default TeamScreen
+export default BaseTeamScreen

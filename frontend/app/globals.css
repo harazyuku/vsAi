@@ -596,6 +596,24 @@ body {
   }
 }
 
+.story-notice-out {
+  animation: storyNoticeOut 0.7s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes storyNoticeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+    filter: blur(4px);
+  }
+}
+
 .story-monitor-mask {
   -webkit-mask-image: radial-gradient(
     ellipse 78% 88% at 50% 44%,
@@ -790,7 +808,8 @@ body {
 
   .story-heroine-tremble,
   .story-monitor-in,
-  .story-scene-in {
+  .story-scene-in,
+  .story-notice-out {
     animation: none;
   }
 }

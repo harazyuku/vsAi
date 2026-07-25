@@ -10,7 +10,7 @@ type Props = {
   onComplete: () => void;
 };
 
-const shuffleSituations = [
+export const shuffleSituations = [
   "学級裁判",
   "国会議事堂",
   "宇宙ステーション",
@@ -28,26 +28,26 @@ const shuffleSituations = [
   "異世界コロシアム",
 ];
 
-const selectableSituations: Record<
+export const selectableSituations: Record<
   Topic["background"],
   { name: string; image: string; mobileImage: string; mobileClass: string }
 > = {
   school: {
     name: "学級裁判",
-    image: "/images/situations/school.png",
-    mobileImage: "/images/situations/mobile/seSchool.PNG",
+    image: "/images/situations/school.webp",
+    mobileImage: "/images/situations/mobile/seSchool.webp",
     mobileClass: "",
   },
   court: {
     name: "法廷",
-    image: "/images/situations/saibansyo.png",
-    mobileImage: "/images/situations/mobile/seSaibansyo.PNG",
+    image: "/images/situations/saibansyo.webp",
+    mobileImage: "/images/situations/mobile/seSaibansyo.webp",
     mobileClass: "",
   },
   deathgame: {
     name: "デスゲーム会場",
-    image: "/images/situations/deathgame.png",
-    mobileImage: "/images/situations/mobile/seDeathGame.PNG",
+    image: "/images/situations/deathgame.webp",
+    mobileImage: "/images/situations/mobile/seDeathGame.webp",
     mobileClass: "scale-[1.08] md:scale-100",
   },
 };

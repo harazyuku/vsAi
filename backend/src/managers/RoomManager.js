@@ -3,32 +3,29 @@ class RoomManager {
     this.rooms = new Map();
   }
 
-  createRoom(roomId, player1, player2) {
+  createRoom(roomId, matchedPlayers) {
     const room = {
       id: roomId,
       status: "ROOM_WAITING",
-      players: [
-        {
-          id: player1.id,
-          name: player1.name,
-          socketId: null,
-          ready: false,
-          stance: "賛成",
-        },
-        {
-          id: player2.id,
-          name: player2.name,
-          socketId: null,
-          ready: false,
-          stance: "反対",
-        },
-      ],
+      players: matchedPlayers.map((player) => ({
+        id: player.id,
+        name: player.name,
+        socketId: null,
+        ready: false,
+        role: "member",
+      })),
       currentRound: 1,
       phase: "answer",
       messages: [],
       teamMessages: [],
+      storyFinishedPlayerIds: [],
+      battleReadyPlayerIds: [],
+      nextRoundReadyPlayerIds: [],
       timeLeft: 30,
       timer: null,
+      countdownTimer: null,
+      gameSelection: null,
+      judgeResult: null,
     };
 
     this.rooms.set(roomId, room);
@@ -43,7 +40,7 @@ class RoomManager {
     const room = this.getRoom(roomId);
     if (!room) return null;
 
-    const { timer, ...publicRoom } = room;
+    const { timer, countdownTimer, ...publicRoom } = room;
     return publicRoom;
   }
 
@@ -69,15 +66,39 @@ class RoomManager {
     }
 
     const allReady =
-      room.players.length === 2 &&
+      room.players.length >= 2 &&
       room.players.every((p) => p.ready);
 
     if (allReady) {
-      room.status = "BATTLE";
-      this.startBattle(room);
+      room.status = "STARTING";
+    } else if (room.status === "STARTING") {
+      room.status = "ROOM_WAITING";
+      this.cancelGameStart(room);
     }
 
     return room;
+  }
+
+  scheduleGameStart(roomId, onStart) {
+    const room = this.getRoom(roomId);
+    if (!room || room.countdownTimer) return;
+
+    room.countdownTimer = setTimeout(() => {
+      room.countdownTimer = null;
+
+      if (!room.players.every((player) => player.ready)) {
+        room.status = "ROOM_WAITING";
+        return;
+      }
+
+      onStart(room);
+    }, 5000);
+  }
+
+  cancelGameStart(room) {
+    if (!room.countdownTimer) return;
+    clearTimeout(room.countdownTimer);
+    room.countdownTimer = null;
   }
 
   startBattle(room) {
@@ -143,6 +164,9 @@ class RoomManager {
 
     if (room?.timer) {
       clearInterval(room.timer);
+    }
+    if (room?.countdownTimer) {
+      clearTimeout(room.countdownTimer);
     }
 
     this.rooms.delete(roomId);

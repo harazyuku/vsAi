@@ -52,7 +52,7 @@ export default function BattleAttackScreen({
       <div className="battle-attack-player absolute inset-x-0 top-[2%] z-10 flex h-[44%] items-center justify-center min-[1100px]:inset-y-0 min-[1100px]:left-[-3%] min-[1100px]:h-auto min-[1100px]:w-[46%]">
         <div className="absolute h-[55vw] w-[55vw] rounded-full border border-blue-300/20 bg-blue-500/15 shadow-[0_0_80px_rgba(37,99,235,0.5)]" />
         <img
-          src="/images/chara-icons/player.PNG"
+          src="/images/chara-icons/player.webp"
           alt="あなた"
           className="relative max-h-[42vh] max-w-[64%] object-contain drop-shadow-[0_25px_45px_rgba(0,0,0,0.8)] min-[1100px]:max-h-[68vh] min-[1100px]:max-w-[85%]"
         />
