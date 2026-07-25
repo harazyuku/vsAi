@@ -114,6 +114,28 @@ body {
   }
 }
 
+@keyframes storyActorIn {
+  from {
+    opacity: 0;
+    transform: translateY(72px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.story-actor-in {
+  animation: storyActorIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-actor-in {
+    animation: none;
+  }
+}
+
 /* ラウンド開始演出 */
 .round-screen-in {
   animation: roundScreenIn 0.45s cubic-bezier(0.2, 0.85, 0.25, 1) both;
@@ -634,6 +656,27 @@ body {
     rgba(0, 0, 0, 0.8) 68%,
     transparent 100%
   );
+}
+
+.story-character-bottom-fade {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 60%,
+    rgba(0, 0, 0, 0.78) 72%,
+    rgba(0, 0, 0, 0.28) 86%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 60%,
+    rgba(0, 0, 0, 0.78) 72%,
+    rgba(0, 0, 0, 0.28) 86%,
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 @keyframes storyHeroineTremble {

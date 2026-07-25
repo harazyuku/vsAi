@@ -1,178 +1,161 @@
-import React, { useRef, useState, useEffect } from 'react'
-import { useGameLogic } from '@/hooks/useGameLogic/useGameLogic';
+"use client";
 
-// import { topics, type Topics } from "../../config/aiConfig";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import type { AICharacter, Topic } from "@/app/config/aiConfig";
 
-type IntroState = "shuffle" | "select";
-
-type Props = ReturnType<typeof useGameLogic> & {
-  onChangeScreen: () => void;
-  closeIntro: () => void;
+type Props = {
+  selectedAI: AICharacter;
+  selectedTopic: Topic;
+  onComplete: () => void;
 };
 
-function IntroScreen({
-  onChangeScreen,
-  closeIntro,
+const shuffleSituations = [
+  "学級裁判",
+  "国会議事堂",
+  "宇宙ステーション",
+  "無人島",
+  "法廷",
+  "深夜のファミレス",
+  "魔王城",
+  "生徒会室",
+  "地下シェルター",
+  "記者会見場",
+  "デスゲーム会場",
+  "満員電車",
+  "廃校",
+  "選挙演説会場",
+  "異世界コロシアム",
+];
 
-  stance,
-  setStance,
-  aiStance,
-  setAiStance,
+const selectableSituations: Record<
+  Topic["background"],
+  { name: string; image: string }
+> = {
+  school: {
+    name: "学級裁判",
+    image: "/images/situations/school.png",
+  },
+  court: {
+    name: "法廷",
+    image: "/images/situations/saibansyo.png",
+  },
+  deathgame: {
+    name: "デスゲーム会場",
+    image: "/images/situations/deathgame.png",
+  },
+};
+
+export default function IntroScreen({
   selectedAI,
-  setSelectedAI,
   selectedTopic,
-  setSelectedTopic,
-  selectAi,
-  selectTopic,
-  selectStance,
-  selectAiStance,
-
-  wait,
-  aiList,
-  topicList
+  onComplete,
 }: Props) {
-
-
-  const [introState, setIntroState] = useState<IntroState>("shuffle");
-  const [show, setShow] = useState(false);
-  const [showCharacterReveal, setShowCharacterReveal] = useState(false);
+  const [situationIndex, setSituationIndex] = useState(0);
+  const [isShuffling, setIsShuffling] = useState(true);
+  const [showOpponent, setShowOpponent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
-  // シャッフル処理
-  const startShuffle = () => {
-    let i = 0;
-
-    const timer = setInterval(() => {
-      setSelectedAI(aiList[i % aiList.length]);
-      i++;
-    }, 50);
-    return timer;
-  };
-
-  // 画面切り替え処理
-  const showSelect = () => setIntroState("select");
-
-  // フロー
-  const introFlow = async () => {
-    // シャッフル
-    const timer = startShuffle();
-
-    await wait(1700);
-
-    clearInterval(timer);
-
-    const ai = selectAi();
-    // ランダムで対戦相手が決まる
-    setSelectedAI(ai);
-
-    // キャラ決定画面
-    setShowCharacterReveal(true);
-    clearInterval(timer);
-
-
-    // キャラ表示
-    setSelectedAI(ai);
-    setIntroState("select");
-    showSelect();
-
-    // お題を表示（隠れてたものをただ出しただけ）
-    await wait(1500);
-    setShow(true);
-
-    await wait(3000);
-    // teamScreenを表示
-    onChangeScreen();
-    // introScreenがスッと消えるcss
-    setIsClosing(true);
-
-    // introScreenを消す
-    await wait(1000);
-    closeIntro();
-  };
-
   useEffect(() => {
-    introFlow();
+    let index = 0;
+    const shuffleTimer = window.setInterval(() => {
+      index = (index + 1) % shuffleSituations.length;
+      setSituationIndex(index);
+    }, 55);
 
-  }, []);
+    const decideTimer = window.setTimeout(() => {
+      window.clearInterval(shuffleTimer);
+      setIsShuffling(false);
+    }, 1900);
 
+    const opponentTimer = window.setTimeout(() => {
+      setShowOpponent(true);
+    }, 2700);
 
+    const closeTimer = window.setTimeout(() => {
+      setIsClosing(true);
+    }, 5200);
+
+    const completeTimer = window.setTimeout(onComplete, 6000);
+
+    return () => {
+      window.clearInterval(shuffleTimer);
+      window.clearTimeout(decideTimer);
+      window.clearTimeout(opponentTimer);
+      window.clearTimeout(closeTimer);
+      window.clearTimeout(completeTimer);
+    };
+  }, [onComplete]);
+
+  const selectedSituation = selectableSituations[selectedTopic.background];
+  const situationName = isShuffling
+    ? shuffleSituations[situationIndex]
+    : selectedSituation.name;
 
   return (
     <div
-      className={`min-h-screen w-full bg-black ${isClosing ? "fade-out" : ""
-        }`}
+      className={`relative min-h-[100dvh] w-full overflow-hidden bg-black text-white ${
+        isClosing ? "fade-out" : ""
+      }`}
     >
+      <Image
+        src={selectedSituation.image}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-out ${
+          isShuffling
+            ? "scale-105 opacity-0"
+            : "scale-100 opacity-100"
+        }`}
+      />
+      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_10%,rgba(0,0,0,.78)_100%)]" />
 
-      {introState === "shuffle" ? (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-8 animate-in zoom-in duration-500">
+      <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10 text-center">
+        <p className="text-sm font-black tracking-[0.35em] text-red-300 md:text-base">
+          SITUATION SELECT
+        </p>
+        <h1 className="mt-4 text-lg font-black tracking-wider text-white/75 md:text-2xl">
+          シチュエーションを選択中・・・
+        </h1>
 
-          <h2 className="text-5xl font-black text-white animate-pulse">
-            対戦相手を決定中...
-          </h2>
-
-          <div className="flex flex-col items-center gap-6">
-
-            <img
-              src={selectedAI?.icon}
-              className="w-80 h-80 rounded-full border-8 border-white"
-            />
-          </div>
-          <div className="mt-6 text-center h-[200px] flex flex-col justify-center">
-          </div>
+        <div className="mt-7 min-h-20">
+          <p
+            className={`text-4xl font-black tracking-wider md:text-7xl ${
+              isShuffling ? "opacity-70" : "zoom-slash text-red-100"
+            }`}
+          >
+            {situationName}
+          </p>
+          {!isShuffling && (
+            <div className="mx-auto mt-4 h-1 w-28 bg-red-500 shadow-[0_0_24px_rgba(239,68,68,.9)]" />
+          )}
         </div>
-      ) : (
-        <>
-          <div className="min-h-screen flex flex-col items-center justify-center gap-8 animate-in zoom-in duration-500">
 
-            <h2 className="text-5xl font-black text-white">
-              今回の相手は...
-            </h2>
-            <div
-              className={`flex flex-col items-center gap-6 ${showCharacterReveal ? "zoom-slash" : ""
-                }`}
-            >
-              {selectedAI && (
-                <img
-                  src={selectedAI.icon}
-                  className="w-80 h-80 rounded-full border-8 border-white shadow-[0_0_50px_rgba(255,255,255,0.5)]"
-                />
-              )}
-
-              <p className="text-6xl font-black tracking-wider text-white text-center">
-                {selectedAI?.name}
-              </p>
-            </div>
-
-
-            <div className="mt-6 text-center h-[120px] flex flex-col justify-center">
-              <div
-
-
-                className={`transition-all duration-700 ease-out ${show
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-4"
-                  }`}
-              >
-                <div className="text-sm text-white/50">今回のお題</div>
-                <div className="text-2xl font-bold text-white mt-2 max-w-2xl break-words">
-                  {selectedTopic?.topic}
-                </div>
-
-                <div className="mt-4 flex items-center justify-center gap-8">
-                  <p className="text-sm text-white/50">あなたは</p>
-
-                  <p className="text-3xl font-black text-white tracking-widest">
-                    {stance} 派
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
+        <div
+          className={`mt-10 flex min-h-52 flex-col items-center transition-all duration-700 ease-out md:min-h-72 ${
+            showOpponent
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
+          }`}
+        >
+          <p className="mb-4 text-sm font-bold tracking-[0.25em] text-white/60">
+            対戦相手
+          </p>
+          <Image
+            src={selectedAI.icon}
+            alt={selectedAI.name}
+            width={208}
+            height={208}
+            className="h-36 w-36 rounded-full border-4 border-white object-cover shadow-[0_0_45px_rgba(255,255,255,.4)] md:h-52 md:w-52"
+          />
+          <p className="mt-4 text-3xl font-black md:text-5xl">
+            {selectedAI.name}
+          </p>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
-
-export default IntroScreen

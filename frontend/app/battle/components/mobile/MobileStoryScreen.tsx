@@ -154,13 +154,22 @@ export default function MobileStoryScreen({
                 actor.isFocused ? "scale-100 opacity-100" : "scale-90 opacity-35"
               }`}
             >
-              <img
-                src={actor.src}
-                alt={actor.alt}
-                className={`drop-shadow-[0_16px_35px_rgba(0,0,0,.85)] ${sizeClass} ${
-                  actor.flipX ? "scale-x-[-1]" : ""
-                }`}
-              />
+              <div className="story-actor-in flex h-full w-full items-end justify-center">
+                <img
+                  src={actor.src}
+                  alt={actor.alt}
+                  className={`drop-shadow-[0_16px_35px_rgba(0,0,0,.85)] ${sizeClass} ${
+                    actor.flipX ? "scale-x-[-1]" : ""
+                  } ${
+                    actor.id === "heroine" ||
+                    actor.id === "player" ||
+                    (!actor.isAICharacter &&
+                      (actor.id === "plaintiff" || actor.id === "defendant"))
+                      ? "story-character-bottom-fade"
+                      : ""
+                  }`}
+                />
+              </div>
             </div>
           );
         })}
