@@ -123,6 +123,8 @@ function handle(client: Client, event: string, data: any = {}) {
   } else if (event === "battle-message" && data.content?.trim() && room.gameSelection?.leaderUserId === data.userId) {
     const message = { userId: data.userId, name: player.name, content: data.content, kind: data.kind, createdAt: Date.now() };
     room.messages.push(message); roomSend(data.roomId, "battle-message", message);
+  } else if (event === "battle-draft" && room.gameSelection?.leaderUserId === data.userId && typeof data.content === "string") {
+    roomSend(data.roomId, "battle-draft", { userId: data.userId, content: data.content });
   } else if (event === "judge-result" && room.gameSelection?.leaderUserId === data.userId && !room.judgeResult) {
     room.judgeResult = data.result; roomSend(data.roomId, "judge-result", data.result);
   } else if (event === "battle-ready" || event === "next-round-ready") {

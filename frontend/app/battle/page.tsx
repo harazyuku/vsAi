@@ -104,6 +104,7 @@ export default function Page() {
     useState<BattleReadyStatus | null>(null);
   const [sharedBattleAnimation, setSharedBattleAnimation] =
     useState<SharedBattleAnimation | null>(null);
+  const [sharedBattleDraft, setSharedBattleDraft] = useState("");
   const [isNextRoundReady, setIsNextRoundReady] = useState(false);
   const [nextRoundReadyStatus, setNextRoundReadyStatus] =
     useState<BattleReadyStatus | null>(null);
@@ -137,11 +138,23 @@ export default function Page() {
     const handleBattleMessage = (message: SharedBattleMessage) => {
       const role = message.kind === "ai" ? "敵AI" : message.name;
 
+      if (message.kind === "player") setSharedBattleDraft("");
       receiveBattleMessage(message.content, role, message.createdAt);
       setSharedBattleAnimation({
         ...message,
         isOwn: message.userId === multiplayerSession.userId,
       });
+    };
+    const handleBattleDraft = ({
+      userId,
+      content,
+    }: {
+      userId: string;
+      content: string;
+    }) => {
+      if (userId !== multiplayerSession.userId) {
+        setSharedBattleDraft(content);
+      }
     };
     const handleBattleReadyStatus = (status: BattleReadyStatus) => {
       setBattleReadyStatus(status);
@@ -162,12 +175,14 @@ export default function Page() {
       setIsNextRoundReady(false);
       setNextRoundReadyStatus(null);
       setSharedBattleAnimation(null);
+      setSharedBattleDraft("");
       nextRound();
       setScreen("team");
     };
 
     socket.on("team-message", handleTeamMessage);
     socket.on("battle-message", handleBattleMessage);
+    socket.on("battle-draft", handleBattleDraft);
     socket.on("battle-ready-status", handleBattleReadyStatus);
     socket.on("battle-phase-start", handleBattlePhaseStart);
     socket.on("next-round-ready-status", handleNextRoundReadyStatus);
@@ -180,6 +195,7 @@ export default function Page() {
     return () => {
       socket.off("team-message", handleTeamMessage);
       socket.off("battle-message", handleBattleMessage);
+      socket.off("battle-draft", handleBattleDraft);
       socket.off("battle-ready-status", handleBattleReadyStatus);
       socket.off("battle-phase-start", handleBattlePhaseStart);
       socket.off("next-round-ready-status", handleNextRoundReadyStatus);
@@ -215,6 +231,16 @@ export default function Page() {
       userId: multiplayerSession.userId,
       content,
       kind,
+    });
+  };
+
+  const sendSharedBattleDraft = (content: string) => {
+    if (!socket || !multiplayerSession || !multiplayerSession.isLeader) return;
+
+    socket.emit("battle-draft", {
+      roomId: multiplayerSession.roomId,
+      userId: multiplayerSession.userId,
+      content,
     });
   };
 
@@ -460,6 +486,8 @@ export default function Page() {
               <TeamMobileBattleScreen
                 {...game}
                 sendSharedBattleMessage={sendSharedBattleMessage}
+                sendSharedBattleDraft={sendSharedBattleDraft}
+                sharedBattleDraft={sharedBattleDraft}
                 canSubmit={multiplayerSession.isLeader}
                 playerDisplayName={multiplayerSession.leaderUserName}
                 teamRoleLabel={
@@ -491,6 +519,8 @@ export default function Page() {
                 <TeamBattleScreen
                   {...game}
                   sendSharedBattleMessage={sendSharedBattleMessage}
+                  sendSharedBattleDraft={sendSharedBattleDraft}
+                  sharedBattleDraft={sharedBattleDraft}
                   canSubmit={multiplayerSession.isLeader}
                   playerDisplayName={multiplayerSession.leaderUserName}
                   teamRoleLabel={

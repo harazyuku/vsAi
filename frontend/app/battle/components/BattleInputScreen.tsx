@@ -10,6 +10,7 @@ type Props = {
   onChange: (value: string) => void;
   onSubmit: () => void;
   onViewHistory: () => void;
+  viewerMode?: boolean;
 };
 
 export default function BattleInputScreen({
@@ -19,6 +20,7 @@ export default function BattleInputScreen({
   onChange,
   onSubmit,
   onViewHistory,
+  viewerMode = false,
 }: Props) {
   if (typeof document === "undefined") return null;
 
@@ -69,7 +71,9 @@ export default function BattleInputScreen({
                 TEAM&apos;S FINAL ARGUMENT
               </p>
               <h2 className="mx-auto max-w-[75%] text-base font-black leading-snug text-white sm:max-w-none sm:text-xl md:text-2xl">
-                作戦会議でまとめた意見を使って、相手を論破する主張を入力してください。
+                {viewerMode
+                  ? "リーダーが入力している主張をリアルタイムで表示しています。"
+                  : "作戦会議でまとめた意見を使って、相手を論破する主張を入力してください。"}
               </h2>
             </div>
             <p className="absolute bottom-0 right-0 hidden text-right text-[10px] tracking-[0.25em] text-blue-200/35 md:block">
@@ -79,27 +83,30 @@ export default function BattleInputScreen({
 
           <div className="relative border-b-2 border-blue-300/30 bg-transparent">
             <textarea
-              autoFocus
+              autoFocus={!viewerMode}
               value={value}
               disabled={disabled}
+              readOnly={viewerMode}
               onChange={(event) => onChange(event.target.value)}
               onKeyDown={(event) => {
-                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                if (!viewerMode && (event.metaKey || event.ctrlKey) && event.key === "Enter") {
                   onSubmit();
                 }
               }}
-              className={`h-36 w-full resize-none bg-transparent px-4 py-5 pr-16 text-center font-black leading-tight text-white outline-none transition-[font-size] duration-200 disabled:opacity-60 sm:h-40 sm:pr-20 md:h-48 md:px-6 md:py-6 md:pr-24 ${inputSizeClass}`}
+              className={`h-36 w-full resize-none bg-transparent px-4 py-5 text-center font-black leading-tight text-white outline-none transition-[font-size] duration-200 disabled:opacity-60 sm:h-40 md:h-48 md:px-6 md:py-6 ${viewerMode ? "cursor-default" : "pr-16 sm:pr-20 md:pr-24"} ${inputSizeClass}`}
             />
 
-            <button
-              type="button"
-              disabled={disabled || !value.trim()}
-              onClick={onSubmit}
-              aria-label="送信"
-              className="absolute bottom-3 right-3 flex h-12 w-12 items-center justify-center rounded-full border border-blue-200/15 bg-blue-400/10 text-xl text-white/45 transition hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-cyan-300/15 hover:text-white/80 active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-20 md:bottom-4 md:right-4 md:h-14 md:w-14 md:text-2xl"
-            >
-              <IoSend />
-            </button>
+            {!viewerMode && (
+              <button
+                type="button"
+                disabled={disabled || !value.trim()}
+                onClick={onSubmit}
+                aria-label="送信"
+                className="absolute bottom-3 right-3 flex h-12 w-12 items-center justify-center rounded-full border border-blue-200/15 bg-blue-400/10 text-xl text-white/45 transition hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-cyan-300/15 hover:text-white/80 active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-20 md:bottom-4 md:right-4 md:h-14 md:w-14 md:text-2xl"
+              >
+                <IoSend />
+              </button>
+            )}
           </div>
         </div>
       </section>

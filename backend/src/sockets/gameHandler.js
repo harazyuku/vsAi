@@ -223,7 +223,19 @@ module.exports = (io, socket) => {
     io.to(roomId).emit("battle-message", msg);
   });
 
-  // ⑨バトルフェーズ準備
+  // ⑨リーダーの入力中テキスト
+  socket.on("battle-draft", ({ roomId, userId, content }) => {
+    const room = RoomManager.getRoom(roomId);
+    if (
+      !room ||
+      room.gameSelection?.leaderUserId !== userId ||
+      typeof content !== "string"
+    ) return;
+
+    io.to(roomId).emit("battle-draft", { userId, content });
+  });
+
+  // ⑩バトルフェーズ準備
   socket.on("battle-ready", ({ roomId, userId }) => {
     const room = RoomManager.getRoom(roomId);
     if (!room) return;
@@ -244,7 +256,7 @@ module.exports = (io, socket) => {
     }
   });
 
-  // ⑩次ラウンド準備
+  // ⑪次ラウンド準備
   socket.on("next-round-ready", ({ roomId, userId }) => {
     const room = RoomManager.getRoom(roomId);
     if (!room) return;
@@ -271,7 +283,7 @@ module.exports = (io, socket) => {
     }
   });
 
-  // ⑪AI審判結果
+  // ⑫AI審判結果
   socket.on("judge-result", ({ roomId, userId, result }) => {
     const room = RoomManager.getRoom(roomId);
     if (
@@ -286,7 +298,7 @@ module.exports = (io, socket) => {
     io.to(roomId).emit("judge-result", result);
   });
 
-  // ⑫切断
+  // ⑬切断
   socket.on("disconnect", () => {
     if (socket.userId) {
       Matchmaker.removeFromQueue(socket.userId);
