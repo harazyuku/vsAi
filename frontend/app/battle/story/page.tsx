@@ -11,6 +11,7 @@ import { saveBattleSession } from "@/lib/battleSession";
 import { aiCharacters, topics } from "@/app/config/aiConfig";
 import { useSocket } from "@/app/providers/SocketProvider";
 import { useGLTF } from "@react-three/drei";
+import { isMultiplayerPlay } from "@/lib/playModeSession";
 
 type StoryFinishedNotice = {
   userId: string;
@@ -20,7 +21,7 @@ type StoryFinishedNotice = {
 };
 
 function getStoredTeamRole(): "leader" | "supporter" | null {
-  if (typeof window === "undefined") return null;
+  if (!isMultiplayerPlay()) return null;
 
   const roomId = window.sessionStorage.getItem("vsAi_activeRoom");
   const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
@@ -146,7 +147,7 @@ export default function StoryPage() {
   }, []);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !teamRole) return;
 
     const handleStoryFinished = (notice: StoryFinishedNotice) => {
       const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
@@ -185,7 +186,7 @@ export default function StoryPage() {
       socket.off("story-player-finished", handleStoryFinished);
       socket.off("all-stories-finished", handleAllStoriesFinished);
     };
-  }, [router, socket]);
+  }, [router, socket, teamRole]);
 
   const startBattle = useCallback(() => {
     if (!selectedAI || !selectedTopic || hasReportedFinished.current) return;
@@ -197,7 +198,7 @@ export default function StoryPage() {
       aiStance,
     });
 
-    if (socket) {
+    if (socket && teamRole) {
       const roomId = window.sessionStorage.getItem("vsAi_activeRoom");
       const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
 
@@ -212,7 +213,7 @@ export default function StoryPage() {
 
     hasReportedFinished.current = true;
     router.replace("/battle");
-  }, [aiStance, router, selectedAI, selectedTopic, socket, stance]);
+  }, [aiStance, router, selectedAI, selectedTopic, socket, stance, teamRole]);
 
   return (
     <main className="h-[100dvh] overflow-hidden bg-black text-white">
