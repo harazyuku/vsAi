@@ -8,10 +8,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { io, type Socket } from "socket.io-client";
+import { RealtimeSocket } from "@/lib/realtimeSocket";
 
 type SocketContextValue = {
-  socket: Socket | null;
+  socket: RealtimeSocket | null;
   isConnected: boolean;
 };
 
@@ -23,29 +23,21 @@ const SocketContext = createContext<SocketContextValue>({
 export const useSocket = () => useContext(SocketContext);
 
 export function SocketProvider({ children }: { children: ReactNode }) {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<RealtimeSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const isProduction = process.env.NODE_ENV === "production";
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ??
-      (isProduction ? window.location.origin : "http://localhost:3001");
-    const socketInstance = io(socketUrl, {
-      autoConnect: true,
-      path:
-        isProduction && !process.env.NEXT_PUBLIC_SOCKET_URL
-          ? "/api/socket/socket.io"
-          : "/socket.io",
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionAttempts: 8,
-    });
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const socketInstance = new RealtimeSocket(
+      `${protocol}//${window.location.host}/api/ws`,
+    );
 
     const handleConnect = () => setIsConnected(true);
     const handleDisconnect = () => setIsConnected(false);
 
     socketInstance.on("connect", handleConnect);
     socketInstance.on("disconnect", handleDisconnect);
+    socketInstance.connect();
     // Socketはブラウザ上でのみ生成するため、マウント後にContextへ渡す。
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSocket(socketInstance);
