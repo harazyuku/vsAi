@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { startSoloPlay } from "@/lib/playModeSession";
 
 const slides = [
   {
@@ -143,6 +144,10 @@ function HowToPlayContent() {
   const last = page === slides.length - 1;
   const startsGame = searchParams.get("from") === "start";
   const destination = startsGame ? "/battle/story" : "/top";
+
+  useEffect(() => {
+    if (startsGame) startSoloPlay();
+  }, [startsGame]);
 
   return (
     <div className="relative flex min-h-[100dvh] items-center justify-center bg-black p-3 pt-20 text-white sm:p-4">

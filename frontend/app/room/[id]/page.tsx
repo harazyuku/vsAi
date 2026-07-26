@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FaUser } from "react-icons/fa";
 import { useSocket } from "@/app/providers/SocketProvider";
+import { startMultiplayerPlay } from "@/lib/playModeSession";
 
 type RoomPlayer = {
   id: string;
@@ -71,6 +72,7 @@ export default function RoomPage() {
     };
     const handlePlayerDisconnected = () => setHasDisconnected(true);
     const handleGameStart = (selection: SharedGameSelection) => {
+      startMultiplayerPlay();
       window.sessionStorage.setItem("vsAi_activeRoom", roomId);
       window.sessionStorage.setItem(
         "vsAi_sharedGame",

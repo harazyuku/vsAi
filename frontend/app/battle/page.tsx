@@ -23,6 +23,7 @@ import SchoolBackground from "./components/Background/SchoolBackground";
 import { loadBattleSession } from "@/lib/battleSession";
 import { saveBattleResultSession } from "@/lib/battleResultSession";
 import { useSocket } from "@/app/providers/SocketProvider";
+import { isMultiplayerPlay } from "@/lib/playModeSession";
 
 type MultiplayerSession = {
   roomId: string;
@@ -65,6 +66,7 @@ export default function Page() {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [multiplayerSession] = useState<MultiplayerSession | null>(() => {
       if (typeof window === "undefined") return null;
+      if (!isMultiplayerPlay()) return null;
 
       const roomId = window.sessionStorage.getItem("vsAi_activeRoom");
       const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
