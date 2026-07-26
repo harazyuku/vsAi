@@ -48,14 +48,14 @@ function SceneContents() {
       <directionalLight position={[7, 5, 5]} intensity={1.2} />
 
       <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-        <Suspense fallback={null}>
-          <Center>
-            {/* おくから手前に来る距離 */}
-            <group ref={modelRef} position={[0, 0, -500]}>
+        <Center>
+          {/* おくから手前に来る距離 */}
+          <group ref={modelRef} position={[0, 0, -500]}>
+            <Suspense fallback={null}>
               <Model onLoaded={() => setLoaded(true)} />
-            </group>
-          </Center>
-        </Suspense>
+            </Suspense>
+          </group>
+        </Center>
       </Float>
 
       <OrbitControls enableZoom={false} enablePan={false} />

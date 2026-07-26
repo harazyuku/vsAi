@@ -10,6 +10,7 @@ import { useGameLogic } from "@/hooks/useGameLogic/useGameLogic";
 import { saveBattleSession } from "@/lib/battleSession";
 import { aiCharacters, topics } from "@/app/config/aiConfig";
 import { useSocket } from "@/app/providers/SocketProvider";
+import { useGLTF } from "@react-three/drei";
 
 type StoryFinishedNotice = {
   userId: string;
@@ -127,6 +128,18 @@ export default function StoryPage() {
     setSelectedTopic,
     setStance,
   ]);
+
+  useEffect(() => {
+    if (!selectedTopic) return;
+
+    const modelPaths = {
+      court: "/models/thai_court.glb",
+      deathgame: "/models/vr_room.glb",
+      school: "/models/japanese_classroom.glb",
+    } as const;
+
+    useGLTF.preload(modelPaths[selectedTopic.background]);
+  }, [selectedTopic]);
 
   const finishIntro = useCallback(() => {
     setShowIntro(false);
