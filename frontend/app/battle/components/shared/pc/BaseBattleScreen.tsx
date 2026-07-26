@@ -288,7 +288,7 @@ function BaseBattleScreen({
             </div>
 
             {/* チャット欄 */}
-            <div className="h-[300px] overflow-y-auto space-y-6">
+            <div className="h-[420px] space-y-6 overflow-y-auto pr-2">
               {battleMessages.map((m, i) => (
                   <div
                     key={i}
