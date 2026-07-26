@@ -3,10 +3,11 @@ const RoomManager = require("../managers/RoomManager");
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 5;
-const MATCH_WAIT_MS = 3000;
+const MATCH_WAIT_MS = 10_000;
 const AI_IDS = ["komikado", "hiroyuki", "l"];
 const TOPIC_BACKGROUNDS = ["school", "court", "deathgame"];
 let matchTimer = null;
+let matchDeadline = null;
 
 function broadcastWaitingStatus(io) {
   const players = Matchmaker.getPlayers();
@@ -14,6 +15,7 @@ function broadcastWaitingStatus(io) {
     status: "waiting",
     playerCount: players.length,
     maxPlayers: MAX_PLAYERS,
+    matchDeadline,
   };
 
   players.forEach((player) => {
@@ -26,6 +28,7 @@ function createMatch(io) {
     clearTimeout(matchTimer);
     matchTimer = null;
   }
+  matchDeadline = null;
 
   if (Matchmaker.size < MIN_PLAYERS) {
     broadcastWaitingStatus(io);
@@ -47,16 +50,17 @@ function createMatch(io) {
 }
 
 function scheduleMatch(io) {
-  broadcastWaitingStatus(io);
-
   if (Matchmaker.size >= MAX_PLAYERS) {
     createMatch(io);
     return;
   }
 
   if (Matchmaker.size >= MIN_PLAYERS && !matchTimer) {
+    matchDeadline = Date.now() + MATCH_WAIT_MS;
     matchTimer = setTimeout(() => createMatch(io), MATCH_WAIT_MS);
   }
+
+  broadcastWaitingStatus(io);
 }
 
 function selectRandom(items) {
@@ -80,6 +84,11 @@ module.exports = (io, socket) => {
   // ②キャンセル
   socket.on("cancel-matching", ({ userId }) => {
     Matchmaker.removeFromQueue(userId);
+    if (Matchmaker.size < MIN_PLAYERS && matchTimer) {
+      clearTimeout(matchTimer);
+      matchTimer = null;
+      matchDeadline = null;
+    }
     socket.emit("matching-status", { status: "idle" });
     broadcastWaitingStatus(io);
   });
@@ -281,6 +290,11 @@ module.exports = (io, socket) => {
   socket.on("disconnect", () => {
     if (socket.userId) {
       Matchmaker.removeFromQueue(socket.userId);
+      if (Matchmaker.size < MIN_PLAYERS && matchTimer) {
+        clearTimeout(matchTimer);
+        matchTimer = null;
+        matchDeadline = null;
+      }
       broadcastWaitingStatus(io);
     }
 
