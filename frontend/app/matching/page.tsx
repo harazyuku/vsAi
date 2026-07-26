@@ -27,6 +27,8 @@ export default function MatchingPage() {
   const [status, setStatus] = useState<MatchingStatus>("connecting");
   const [userName, setUserName] = useState("");
   const [playerCount, setPlayerCount] = useState(1);
+  const [matchDeadline, setMatchDeadline] = useState<number | null>(null);
+  const [matchSecondsLeft, setMatchSecondsLeft] = useState<number | null>(null);
   const playerRef = useRef<{ userId: string; userName: string } | null>(null);
   const hasStartedRef = useRef(false);
 
@@ -51,10 +53,16 @@ export default function MatchingPage() {
 
     const handleWaiting = ({
       playerCount: waitingPlayers = 1,
+      matchDeadline: deadline = null,
     }: {
       playerCount?: number;
+      matchDeadline?: number | null;
     }) => {
       setPlayerCount(waitingPlayers);
+      setMatchDeadline(deadline);
+      setMatchSecondsLeft(
+        deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 1000)) : null,
+      );
       setStatus("waiting");
     };
     const handleSuccess = ({
@@ -65,6 +73,8 @@ export default function MatchingPage() {
       memberCount: number;
     }) => {
       setPlayerCount(memberCount);
+      setMatchDeadline(null);
+      setMatchSecondsLeft(null);
       setStatus("matched");
       window.setTimeout(() => router.push(`/room/${roomId}`), 700);
     };
@@ -91,6 +101,18 @@ export default function MatchingPage() {
       }
     };
   }, [isConnected, router, socket, startMatching]);
+
+  useEffect(() => {
+    if (!matchDeadline) return;
+
+    const timer = window.setInterval(() => {
+      setMatchSecondsLeft(
+        Math.max(0, Math.ceil((matchDeadline - Date.now()) / 1000)),
+      );
+    }, 250);
+
+    return () => window.clearInterval(timer);
+  }, [matchDeadline]);
 
   const cancelMatching = () => {
     if (socket && playerRef.current) {
@@ -129,6 +151,11 @@ export default function MatchingPage() {
         <p className="mt-2 text-xs font-black tracking-[0.2em] text-cyan-200/65">
           TEAM MEMBERS {playerCount} / 5
         </p>
+        {matchSecondsLeft !== null && status === "waiting" && (
+          <p className="mt-4 text-lg font-black tabular-nums text-amber-300">
+            マッチ成立まで あと {matchSecondsLeft} 秒
+          </p>
+        )}
 
         <div className="mx-auto my-10 flex h-44 w-44 items-center justify-center">
           {status === "matched" ? (

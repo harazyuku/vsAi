@@ -8,10 +8,14 @@ const state = globalThis as typeof globalThis & {
   vsAiQueue?: Map<string, any>;
   vsAiRooms?: Map<string, any>;
   vsAiMatchTimer?: ReturnType<typeof setTimeout> | null;
+  vsAiMatchDeadline?: number | null;
 };
 const clients = state.vsAiClients ??= new Map();
 const queue = state.vsAiQueue ??= new Map();
 const rooms = state.vsAiRooms ??= new Map();
+const MIN_PLAYERS = 2;
+const MAX_PLAYERS = 5;
+const MATCH_WAIT_MS = 10_000;
 
 const send = (client: Client | undefined, event: string, payload?: any) => {
   if (client?.ws.readyState === 1) client.ws.send(JSON.stringify({ event, payload }));
@@ -28,13 +32,19 @@ const publicRoom = (room: any) => {
   return copy;
 };
 const waiting = () => {
-  const payload = { status: "waiting", playerCount: queue.size, maxPlayers: 5 };
+  const payload = {
+    status: "waiting",
+    playerCount: queue.size,
+    maxPlayers: MAX_PLAYERS,
+    matchDeadline: state.vsAiMatchDeadline ?? null,
+  };
   queue.forEach((player) => sendId(player.socketId, "matching-status", payload));
 };
 const match = () => {
   state.vsAiMatchTimer = null;
-  if (queue.size < 2) return waiting();
-  const matched = [...queue.values()].slice(0, 5);
+  state.vsAiMatchDeadline = null;
+  if (queue.size < MIN_PLAYERS) return waiting();
+  const matched = [...queue.values()].slice(0, MAX_PLAYERS);
   matched.forEach((player) => queue.delete(player.id));
   const id = `room-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const room = {
@@ -53,13 +63,25 @@ function handle(client: Client, event: string, data: any = {}) {
   if (event === "start-matching") {
     client.userId = data.userId;
     queue.set(data.userId, { id: data.userId, name: data.userName, socketId: client.id });
-    waiting();
-    if (queue.size >= 5) match();
-    else if (queue.size >= 2 && !state.vsAiMatchTimer) state.vsAiMatchTimer = setTimeout(match, 3000);
+    if (queue.size >= MAX_PLAYERS) match();
+    else if (queue.size >= MIN_PLAYERS && !state.vsAiMatchTimer) {
+      state.vsAiMatchDeadline = Date.now() + MATCH_WAIT_MS;
+      state.vsAiMatchTimer = setTimeout(match, MATCH_WAIT_MS);
+      waiting();
+    } else {
+      waiting();
+    }
     return;
   }
   if (event === "cancel-matching") {
-    queue.delete(data.userId); waiting(); return;
+    queue.delete(data.userId);
+    if (queue.size < MIN_PLAYERS && state.vsAiMatchTimer) {
+      clearTimeout(state.vsAiMatchTimer);
+      state.vsAiMatchTimer = null;
+      state.vsAiMatchDeadline = null;
+    }
+    waiting();
+    return;
   }
   const room = rooms.get(data.roomId);
   if (event === "join-game-room") {
@@ -127,7 +149,14 @@ export async function GET() {
     });
     ws.on("close", () => {
       clients.delete(client.id);
-      if (client.userId) queue.delete(client.userId);
+      if (client.userId) {
+        queue.delete(client.userId);
+        if (queue.size < MIN_PLAYERS && state.vsAiMatchTimer) {
+          clearTimeout(state.vsAiMatchTimer);
+          state.vsAiMatchTimer = null;
+          state.vsAiMatchDeadline = null;
+        }
+      }
       waiting();
       if (client.roomId) {
         rooms.delete(client.roomId);
