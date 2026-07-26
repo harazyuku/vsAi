@@ -291,7 +291,7 @@ export default function StoryScreen({
 
       <div className="absolute inset-x-0 bottom-0 z-20 p-2 sm:p-4 md:p-10">
         <div
-          className={`mx-auto max-w-6xl overflow-hidden rounded-xl border backdrop-blur-sm transition-colors sm:rounded-2xl md:backdrop-blur-xl ${
+          className={`mx-auto max-w-6xl overflow-hidden rounded-xl border transition-colors sm:rounded-2xl ${
             isNarration
               ? "border-white/20 bg-black/75"
               : isSatoSpeaking
