@@ -257,8 +257,8 @@ export default function StoryPage() {
       </div>
 
       {showReadyScreen && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black px-6">
-          <div className="w-full max-w-md text-center">
+        <div className="ready-screen-in fixed inset-0 z-[90] flex items-center justify-center bg-black px-6">
+          <div className="ready-content-in w-full max-w-md text-center">
             <p className="text-5xl font-black tracking-[0.18em] text-white sm:text-7xl">
               READY?
             </p>

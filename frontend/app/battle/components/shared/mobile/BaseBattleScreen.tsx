@@ -12,6 +12,8 @@ type Props = ReturnType<typeof useGameLogic> & {
   setShowRoundScreen: React.Dispatch<React.SetStateAction<boolean>>;
   isMultiplayer: boolean;
   sendSharedBattleMessage: (message: string, kind: "player" | "ai") => void;
+  sendSharedBattleDraft?: (content: string) => void;
+  sharedBattleDraft?: string;
   canSubmit?: boolean;
   playerDisplayName?: string;
   teamRoleLabel?: string;
@@ -54,6 +56,8 @@ function BaseBattleScreen({
   selectedTopic,
   isMultiplayer,
   sendSharedBattleMessage,
+  sendSharedBattleDraft,
+  sharedBattleDraft = "",
   canSubmit = true,
   playerDisplayName = "あなた",
   teamRoleLabel,
@@ -74,6 +78,12 @@ function BaseBattleScreen({
   const responseAddedRef = useRef(false);
   const [historyTab, setHistoryTab] = useState<"team" | "battle">("battle");
 
+  const handleInputChange = (value: string) => {
+    setInput(value);
+    inputRef.current = value;
+    if (isMultiplayer) sendSharedBattleDraft?.(value);
+  };
+
   // 自分の発言〜aiが発言し画面に表示までのフロー
   const handleSendMessage = async (message: string) => {
     if (!canSubmit || !message.trim()) return;
@@ -83,6 +93,7 @@ function BaseBattleScreen({
     responseAddedRef.current = false;
     setInput("");
     inputRef.current = "";
+    if (isMultiplayer) sendSharedBattleDraft?.("");
     stopBattleTimer();
     setIsAITyping(true);
 
@@ -109,8 +120,11 @@ function BaseBattleScreen({
    setShowRoundScreen(true);
     await wait(2200);
     setShowRoundScreen(false);
-    if (!canSubmit) return;
     setShowInputScreen(true);
+    if (!canSubmit) {
+      void startBattleTimer();
+      return;
+    }
 
     // 残り時間タイマースタート
     await startBattleTimer();
@@ -133,6 +147,8 @@ function BaseBattleScreen({
     if (!isMultiplayer || !sharedBattleEvent || sharedBattleEvent.isOwn) return;
 
     if (sharedBattleEvent.kind === "player") {
+      setShowInputScreen(false);
+      stopBattleTimer();
       responseAddedRef.current = false;
       setResponseMessage("");
       setAttackMessage(sharedBattleEvent.content);
@@ -159,15 +175,13 @@ function BaseBattleScreen({
    <div className="h-[100dvh] w-full overflow-hidden bg-transparent p-2 sm:p-4">
   {showInputScreen && (
     <BattleInputScreen
-      value={input}
+      value={canSubmit ? input : sharedBattleDraft}
       time={time}
       disabled={isAITyping}
-      onChange={(value) => {
-        setInput(value);
-        inputRef.current = value;
-      }}
+      onChange={canSubmit ? handleInputChange : () => undefined}
       onSubmit={() => handleSendMessage(input)}
       onViewHistory={() => setShowInputScreen(false)}
+      viewerMode={!canSubmit}
     />
   )}
   {attackMessage && (
@@ -383,20 +397,19 @@ function BaseBattleScreen({
     {/* 入力 */}
     <div className="shrink-0">
       {!hasSubmitted && !canSubmit ? (
-        <div className="w-full rounded-2xl border border-cyan-300/25 bg-cyan-400/10 py-4 text-center">
-          <p className="animate-pulse font-black tracking-wider text-cyan-100">
-            リーダーが発言中・・・
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowInputScreen(true)}
+          className="w-full rounded-2xl border border-cyan-300/25 bg-cyan-400/10 py-4 text-center font-black tracking-wider text-cyan-100 transition active:bg-cyan-400/15"
+        >
+          リーダーの入力画面を見る
+        </button>
       ) : !hasSubmitted ? (
         <BattleCompactInput
           value={input}
           time={time}
           disabled={isAITyping}
-          onChange={(value) => {
-            setInput(value);
-            inputRef.current = value;
-          }}
+          onChange={handleInputChange}
           onSubmit={() => handleSendMessage(input)}
           onExpand={() => setShowInputScreen(true)}
         />
