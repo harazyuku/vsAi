@@ -190,7 +190,7 @@ export default function MobileStoryScreen({
       </div>
 
       <div className="absolute inset-x-0 bottom-[max(12px,env(safe-area-inset-bottom))] z-30 px-3">
-        <div className={`overflow-hidden rounded-xl border shadow-2xl backdrop-blur-sm ${bubbleClass}`}>
+        <div className={`overflow-hidden rounded-xl border shadow-2xl ${bubbleClass}`}>
           <div className="border-b border-white/10 px-4 py-2">
             <p className="text-xs font-black tracking-[0.15em] text-white/80">{speakerLabel}</p>
           </div>

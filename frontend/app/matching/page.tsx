@@ -121,7 +121,7 @@ export default function MatchingPage() {
           ONLINE MATCH
         </p>
         <h1 className="mt-3 text-3xl font-black sm:text-5xl">
-          {status === "matched" ? "協力者が見つかった！" : "協力者を検索中"}
+          {status === "matched" ? "マッチング成立" : "協力者を検索中"}
         </h1>
         <p className="mt-3 text-sm text-white/55">
           {userName ? `${userName} として参加中` : "プレイヤー情報を準備中"}
