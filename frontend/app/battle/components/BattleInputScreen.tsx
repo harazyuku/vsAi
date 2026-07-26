@@ -72,7 +72,7 @@ export default function BattleInputScreen({
               </p>
               <h2 className="mx-auto max-w-[75%] text-base font-black leading-snug text-white sm:max-w-none sm:text-xl md:text-2xl">
                 {viewerMode
-                  ? "リーダーが入力している主張をリアルタイムで表示しています。"
+                  ? "リーダーがここに意見を入力中・・・"
                   : "作戦会議でまとめた意見を使って、相手を論破する主張を入力してください。"}
               </h2>
             </div>

@@ -25,7 +25,7 @@ function Main() {
           href="/matching"
           className="mt-3 w-full max-w-xs rounded-2xl border border-cyan-300/40 bg-cyan-400/10 px-6 py-4 text-base font-semibold text-cyan-100 transition hover:scale-105 hover:bg-cyan-400/20 sm:px-10 sm:text-lg"
         >
-          2人で協力プレイ
+          集団で論破する
         </Link>
       </div>
     </div>
