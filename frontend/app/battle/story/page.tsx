@@ -40,6 +40,20 @@ function getStoredTeamRole(): "leader" | "supporter" | null {
   }
 }
 
+function getStoredTeamSize(): number {
+  if (!isMultiplayerPlay()) return 1;
+
+  const storedSelection = window.sessionStorage.getItem("vsAi_sharedGame");
+  if (!storedSelection) return 1;
+
+  try {
+    const { teamSize } = JSON.parse(storedSelection) as { teamSize?: number };
+    return teamSize ?? 1;
+  } catch {
+    return 1;
+  }
+}
+
 export default function StoryPage() {
   const router = useRouter();
   const { socket } = useSocket();
@@ -50,7 +64,10 @@ export default function StoryPage() {
   const [exitingNoticeIds, setExitingNoticeIds] = useState<Set<string>>(
     new Set(),
   );
-  const [isWaitingForMembers, setIsWaitingForMembers] = useState(false);
+  const [showReadyScreen, setShowReadyScreen] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [readyCount, setReadyCount] = useState(0);
+  const [teamSize] = useState(getStoredTeamSize);
   const [teamRole] = useState<"leader" | "supporter" | null>(
     getStoredTeamRole,
   );
@@ -150,6 +167,8 @@ export default function StoryPage() {
     if (!socket || !teamRole) return;
 
     const handleStoryFinished = (notice: StoryFinishedNotice) => {
+      setReadyCount(notice.finishedCount);
+
       const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
       const myUserId = storedPlayer
         ? (JSON.parse(storedPlayer) as { userId: string }).userId
@@ -189,7 +208,7 @@ export default function StoryPage() {
   }, [router, socket, teamRole]);
 
   const startBattle = useCallback(() => {
-    if (!selectedAI || !selectedTopic || hasReportedFinished.current) return;
+    if (!selectedAI || !selectedTopic) return;
 
     saveBattleSession({
       selectedAI,
@@ -198,22 +217,26 @@ export default function StoryPage() {
       aiStance,
     });
 
-    if (socket && teamRole) {
-      const roomId = window.sessionStorage.getItem("vsAi_activeRoom");
-      const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
-
-      if (roomId && storedPlayer) {
-        const { userId } = JSON.parse(storedPlayer) as { userId: string };
-        hasReportedFinished.current = true;
-        setIsWaitingForMembers(true);
-        socket.emit("story-finished", { roomId, userId });
-        return;
-      }
+    if (teamRole) {
+      setShowReadyScreen(true);
+      return;
     }
 
-    hasReportedFinished.current = true;
     router.replace("/battle");
-  }, [aiStance, router, selectedAI, selectedTopic, socket, stance, teamRole]);
+  }, [aiStance, router, selectedAI, selectedTopic, stance, teamRole]);
+
+  const reportReady = useCallback(() => {
+    if (!socket || !teamRole || hasReportedFinished.current) return;
+
+    const roomId = window.sessionStorage.getItem("vsAi_activeRoom");
+    const storedPlayer = window.sessionStorage.getItem("vsAi_matchPlayer");
+    if (!roomId || !storedPlayer) return;
+
+    const { userId } = JSON.parse(storedPlayer) as { userId: string };
+    hasReportedFinished.current = true;
+    setIsReady(true);
+    socket.emit("story-finished", { roomId, userId });
+  }, [socket, teamRole]);
 
   return (
     <main className="h-[100dvh] overflow-hidden bg-black text-white">
@@ -233,18 +256,28 @@ export default function StoryPage() {
         ))}
       </div>
 
-      {isWaitingForMembers && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 px-6 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-3xl border border-cyan-300/25 bg-slate-950/90 px-7 py-9 text-center shadow-[0_20px_80px_rgba(0,0,0,.8)]">
-            <div className="mx-auto mb-5 h-10 w-10 animate-spin rounded-full border-4 border-cyan-200/20 border-t-cyan-300" />
-            <p className="text-xl font-black text-cyan-100">
-              メンバーを待っています
+      {showReadyScreen && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black px-6">
+          <div className="w-full max-w-md text-center">
+            <p className="text-5xl font-black tracking-[0.18em] text-white sm:text-7xl">
+              READY?
             </p>
-            <p className="mt-3 text-sm font-bold leading-relaxed text-white/55">
-              全員がstoryを見終えると
-              <br />
-              バトル画面へ進みます
+            <button
+              type="button"
+              onClick={reportReady}
+              disabled={isReady || !socket}
+              className="mt-12 w-full rounded-full border border-white/70 bg-white px-8 py-4 text-lg font-black tracking-[0.2em] text-black transition hover:bg-cyan-100 disabled:cursor-default disabled:border-white/20 disabled:bg-white/10 disabled:text-white/45"
+            >
+              {isReady ? "WAITING..." : "READY"}
+            </button>
+            <p className="mt-5 text-sm font-bold text-white/45">
+              {readyCount} / {teamSize} READY
             </p>
+            {isReady && (
+              <p className="mt-3 text-xs font-bold tracking-wider text-white/35">
+                メンバーの準備を待っています
+              </p>
+            )}
           </div>
         </div>
       )}
