@@ -70,7 +70,7 @@ function JudgeScreen({
             </h2>
 
             <p className="text-sm md:text-base text-gray-300">
-              5ラウンドに及ぶディベート履歴を徹底的に分析しています。
+              3ラウンドに及ぶディベート履歴を徹底的に分析しています。
             </p>
 
           </div>

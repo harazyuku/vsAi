@@ -73,16 +73,16 @@ const slides = [
   },
   {
     icon: "⏱️",
-    title: "5ラウンド戦い抜け",
+    title: "3ラウンド戦い抜け",
     catchphrase: "履歴を見返し、前の議論を次の反論に活かそう",
     content: (
       <div className="flex items-center justify-center gap-1 md:gap-3">
-        {[1, 2, 3, 4, 5].map((round) => (
+        {[1, 2, 3].map((round) => (
           <div key={round} className="flex items-center gap-1 md:gap-3">
             {round > 1 && <span className="text-white/25">→</span>}
             <div
               className={`flex h-11 w-11 items-center justify-center rounded-full border font-black md:h-16 md:w-16 ${
-                round === 5
+                round === 3
                   ? "border-yellow-300 bg-yellow-300 text-black shadow-[0_0_30px_rgba(253,224,71,.25)]"
                   : "border-white/20 bg-white/5"
               }`}
