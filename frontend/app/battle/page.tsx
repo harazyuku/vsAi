@@ -340,7 +340,7 @@ export default function Page() {
   // ラウンド監視
   useEffect(() => {
     if (
-      round !== 6 ||
+      round !== 4 ||
       hasStartedJudgeRef.current ||
       !game.selectedTopic
     ) return;

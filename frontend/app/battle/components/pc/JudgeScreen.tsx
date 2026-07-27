@@ -45,7 +45,7 @@ function JudgeScreen({
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold tracking-wider animate-pulse text-white">AI審判が判定中...</h2>
             <p className="text-base text-gray-300">
-              5ラウンドに及ぶディベート履歴を徹底的に分析しています。
+              3ラウンドに及ぶディベート履歴を徹底的に分析しています。
             </p>
           </div>
         </div>

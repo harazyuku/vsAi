@@ -117,7 +117,7 @@ class RoomManager {
       room.phase = "reply";
       room.timeLeft = 60;
     } else {
-      if (room.currentRound >= 5) {
+      if (room.currentRound >= 3) {
         room.status = "JUDGING";
         room.timeLeft = 0;
 
