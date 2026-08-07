@@ -49,14 +49,14 @@ function SceneContents() {
       <directionalLight position={[7, 5, 5]} intensity={1.2} />
 
       <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-        <Center>
-          {/* おくから手前に来る距離 */}
-          <group ref={modelRef} position={[0, 0, -500]}>
-            <Suspense fallback={null}>
+        <Suspense fallback={null}>
+          {/* 中央配置とは別のグループで登場アニメーションを行う */}
+          <group ref={modelRef} position={[0, 0, -20]}>
+            <Center>
               <Model onLoaded={() => setLoaded(true)} />
-            </Suspense>
+            </Center>
           </group>
-        </Center>
+        </Suspense>
       </Float>
 
       <OrbitControls enableZoom={false} enablePan={false} />
@@ -67,11 +67,13 @@ function SceneContents() {
 export default function Background() {
   return (
     <div className="h-full w-full">
-      <Canvas camera={{ position: [0, 1, 5] }}>
+      <Canvas
+        camera={{ position: [0, 1, 5] }}
+        dpr={[1, 1.25]}
+        gl={{ antialias: false, powerPreference: "high-performance" }}
+      >
         <SceneContents />
       </Canvas>
     </div>
   );
 }
-
-

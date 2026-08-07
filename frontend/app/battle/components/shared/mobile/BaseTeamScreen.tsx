@@ -1,15 +1,20 @@
 import { useGameLogic } from '@/hooks/useGameLogic/useGameLogic';
 import { useTimer } from '@/hooks/useTimer';
 import React, { useEffect, useState } from 'react'
-import { AICharacter } from "@/app/config/aiConfig";
 
 type Props = ReturnType<typeof useGameLogic> & {
   onChangeScreen: () => void;
   setShowRoundScreen: React.Dispatch<React.SetStateAction<boolean>>;
+  isMultiplayer: boolean;
+  sendSharedTeamMessage: (message: string) => void;
+  onBattlePhaseRequest?: () => void;
+  isBattleReady?: boolean;
+  battleReadyLabel?: string;
+  teamRoleLabel?: string;
 };
 
 // チームロジック
-function TeamScreen({
+function BaseTeamScreen({
   wait,
   teamMessages,
   battleMessages,
@@ -31,6 +36,12 @@ function TeamScreen({
   createAllyPrompt,
   sendAllyAI,
   sendAiTeamMessage,
+  isMultiplayer,
+  sendSharedTeamMessage,
+  onBattlePhaseRequest,
+  isBattleReady = false,
+  battleReadyLabel,
+  teamRoleLabel,
 }: Props) {
   const { time, startTeamTimer, stopTeamTimer } = useTimer();
   const [input, setInput] = useState("");
@@ -40,6 +51,11 @@ function TeamScreen({
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
     setInput("");
+
+    if (isMultiplayer) {
+      sendSharedTeamMessage(message);
+      return;
+    }
 
     sendTeamMessage(message);
 
@@ -59,7 +75,11 @@ function TeamScreen({
     // 残り時間タイマースタート
     await startTeamTimer();
     stopTeamTimer();
-    onChangeScreen();
+    if (isMultiplayer) {
+      onBattlePhaseRequest?.();
+    } else {
+      onChangeScreen();
+    }
   };
 
 
@@ -82,17 +102,18 @@ function TeamScreen({
 
   return (
 
-    <div className="w-full h-screen overflow-hidden bg-black/20 p-4">
+    <div className="h-[100dvh] w-full overflow-hidden bg-transparent p-2 sm:p-4">
 
       <div
         className="
       w-full
       h-full
-      rounded-3xl
+      rounded-2xl
+      sm:rounded-3xl
       border border-white/10
-      bg-white/5
-      backdrop-blur-xl
-      p-4
+      bg-transparent
+      p-3
+      sm:p-4
       flex
       flex-col
       gap-4
@@ -101,20 +122,27 @@ function TeamScreen({
       >
 
         {/* ヘッダー */}
-        <div className="flex justify-between items-center shrink-0">
+        <div className="flex shrink-0 items-start justify-between gap-3">
 
-          <div>
+          <div className="min-w-0 flex-1">
 
-            <p className="text-sm text-gray-400">
-              あなたは
-              <span className="text-white font-bold">
-                「{stance}」
-              </span>
-              派
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm text-gray-400">
+                あなたは
+                <span className="text-white font-bold">
+                  「{stance}」
+                </span>
+                派
+              </p>
+              {teamRoleLabel && (
+                <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-black text-cyan-200">
+                  {teamRoleLabel}
+                </span>
+              )}
+            </div>
 
             {selectedTopic && (
-              <h1 className="text-lg font-bold mt-1">
+              <h1 className="line-clamp-3 break-words text-base font-bold leading-snug sm:text-lg">
                 {selectedTopic.topic}
               </h1>
             )}
@@ -122,7 +150,7 @@ function TeamScreen({
           </div>
 
 
-          <div className="text-center">
+          <div className="shrink-0 text-center">
 
             <p className="text-xs text-gray-400">
               ROUND
@@ -285,15 +313,15 @@ function TeamScreen({
                 rounded-2xl
                 px-4
                 py-3
-                ${m.role === "あなた"
-                      ? "bg-blue-500/20 text-white"
-                      : "bg-red-500/20 text-white ml-auto"
+                ${m.role === "敵AI"
+                      ? "bg-red-500/20 text-white ml-auto"
+                      : "bg-blue-500/20 text-white"
                     }
               `}
                 >
 
                   <p className="text-xs opacity-60 mb-1">
-                    {m.role === "あなた" ? "あなた" : "敵AI"}
+                    {m.role}
                   </p>
 
 
@@ -332,11 +360,13 @@ function TeamScreen({
             placeholder="チームの方針をまとめる..."
             className="
           w-full
-          h-24
+          h-20
+          sm:h-24
           rounded-2xl
           bg-black/40
           border border-white/10
-          p-4
+          p-3
+          sm:p-4
           text-sm
           text-white
           resize-none
@@ -352,29 +382,35 @@ function TeamScreen({
                 setInput("");
               }}
               className="
-            py-4
-            rounded-xl
-            bg-white/10
+            rounded-xl bg-blue-500/30 py-3 sm:py-4
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-blue-500/40 hover:shadow-lg hover:shadow-blue-500/20
+            active:translate-y-0
           "
             >
-              送信
+              チームに送信
             </button>
 
 
             <button
+              disabled={isBattleReady}
               onClick={() => {
-                onChangeScreen();
+                if (isMultiplayer) {
+                  onBattlePhaseRequest?.();
+                } else {
+                  onChangeScreen();
+                }
                 scrollTeamToBottom();
               }}
               className="
-            py-4
-            rounded-xl
-            bg-white
-            text-black
-            font-bold
+            rounded-xl bg-red-500/30 py-3 sm:py-4
+            transition-all duration-200
+            hover:-translate-y-1 hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20
+            active:translate-y-0
+            disabled:cursor-wait disabled:opacity-55 disabled:hover:translate-y-0
           "
             >
-              確定
+              {battleReadyLabel ?? "バトルフェーズへ"}
             </button>
 
           </div>
@@ -389,4 +425,4 @@ function TeamScreen({
   )
 }
 
-export default TeamScreen
+export default BaseTeamScreen

@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
 export const useTimer = () => {
-  const [time, setTime] = useState(30);
+  const [time, setTime] = useState(180);
 
   const teamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const battleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // チーム画面タイマー
-  const startTeamTimer = (seconds = 30) => {
+  const startTeamTimer = (seconds = 180) => {
     setTime(seconds);
 
     return new Promise<void>((resolve) => {
@@ -26,7 +26,7 @@ export const useTimer = () => {
   };
 
   // バトル画面タイマー
-  const startBattleTimer = (seconds = 30) => {
+  const startBattleTimer = (seconds = 180) => {
     setTime(seconds);
 
     return new Promise<void>((resolve) => {
